@@ -1,8 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircleHeart, Mic, Users, CheckCircle, BookOpen, Zap } from "lucide-react";
+import { MessageCircleHeart, Mic, Users, CheckCircle, BookOpen, Zap, Shield } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 
 export default function HomePage() {
@@ -124,8 +125,13 @@ export default function HomePage() {
       </main>
 
       <footer className="py-8 border-t">
-        <div className="container text-center text-muted-foreground font-body">
+        <div className="container text-center text-muted-foreground font-body space-y-2">
           <p>&copy; {new Date().getFullYear()} LinguaVerse. All rights reserved.</p>
+          <div className="text-xs">
+            <Link href="/auth/admin/login" className="hover:text-primary hover:underline">
+              <Shield className="inline-block mr-1 h-3 w-3" /> Admin Login
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
