@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'LinguaVerse',
+  title: 'Edutalks',
   description: 'Learn English through voice calls, daily topics, and quizzes.',
 };
 

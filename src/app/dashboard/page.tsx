@@ -16,7 +16,7 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <Card className="shadow-lg bg-gradient-to-r from-primary/20 to-accent/10 border-primary/30">
         <CardHeader>
-          <CardTitle className="font-headline text-4xl">Welcome back, Lingua User!</CardTitle>
+          <CardTitle className="font-headline text-4xl">Welcome back, Edutalks User!</CardTitle>
           <CardDescription className="font-body text-lg text-foreground/80">
             Ready to improve your English today? Let&apos;s get started!
           </CardDescription>

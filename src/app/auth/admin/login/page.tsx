@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "admin@linguaverse.com", // Default for easy testing
+      email: "admin@edutalks.com", // Default for easy testing
       password: "password", // Default for easy testing
     },
   });
@@ -43,7 +43,7 @@ export default function AdminLoginPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Placeholder for admin login logic
     console.log("Admin login attempt:", values);
-    if (values.email === "admin@linguaverse.com" && values.password === "password") {
+    if (values.email === "admin@edutalks.com" && values.password === "password") {
       toast({
         title: "Admin Login Successful (Mock)",
         description: "Redirecting to admin dashboard.",

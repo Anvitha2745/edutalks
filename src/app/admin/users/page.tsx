@@ -42,7 +42,7 @@ export default function UserManagementPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-headline text-4xl">User Management</h1>
-        <p className="text-muted-foreground font-body">View, manage, and moderate LinguaVerse users.</p>
+        <p className="text-muted-foreground font-body">View, manage, and moderate Edutalks users.</p>
       </div>
 
       <Card className="shadow-lg">
@@ -130,4 +130,3 @@ export default function UserManagementPage() {
     </div>
   );
 }
-

@@ -29,8 +29,8 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const defaultValues: Partial<ProfileFormValues> = {
-  fullName: "Lingua User",
-  email: "user@linguaverse.com",
+  fullName: "Edutalks User",
+  email: "user@edutalks.com",
   bio: "Passionate about learning new languages and connecting with people.",
   learningGoals: "Achieve B2 fluency in English, practice daily conversations.",
 };
@@ -55,7 +55,7 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-headline text-4xl">Your Profile</h1>
-        <p className="text-muted-foreground font-body">Manage your account settings and personalize your LinguaVerse experience.</p>
+        <p className="text-muted-foreground font-body">Manage your account settings and personalize your Edutalks experience.</p>
       </div>
 
       <Card className="shadow-lg">
@@ -69,7 +69,7 @@ export default function ProfilePage() {
               <div className="flex items-center space-x-6 mb-8">
                 <Avatar className="h-24 w-24">
                   <AvatarImage src="https://placehold.co/150x150.png" alt="User avatar" data-ai-hint="person avatar" />
-                  <AvatarFallback>LU</AvatarFallback>
+                  <AvatarFallback>EU</AvatarFallback>
                 </Avatar>
                 <Button variant="outline" type="button">
                   <UploadCloud className="mr-2 h-4 w-4" /> Upload New Photo
@@ -131,7 +131,7 @@ export default function ProfilePage() {
                     <FormLabel className="font-body">Learning Goals</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="What do you want to achieve with LinguaVerse?"
+                        placeholder="What do you want to achieve with Edutalks?"
                         className="resize-none font-body"
                         {...field}
                       />

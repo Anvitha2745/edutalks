@@ -68,7 +68,7 @@ export default function DashboardLayout({
         </SidebarContent>
         <Separator className="my-2" />
         <SidebarFooter className="p-4">
-          <p className="text-xs text-muted-foreground font-body">&copy; {new Date().getFullYear()} LinguaVerse</p>
+          <p className="text-xs text-muted-foreground font-body">&copy; {new Date().getFullYear()} Edutalks</p>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">

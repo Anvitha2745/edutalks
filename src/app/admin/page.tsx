@@ -21,14 +21,14 @@ export default function AdminDashboardPage() {
             <CardTitle className="font-headline text-4xl">Admin Dashboard</CardTitle>
           </div>
           <CardDescription className="font-body text-lg text-foreground/80">
-            Welcome, Administrator! Manage LinguaVerse content and users from here.
+            Welcome, Administrator! Manage Edutalks content and users from here.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 space-y-4">
               <p className="font-body text-foreground/90">
-                This is your central hub for overseeing all aspects of the LinguaVerse platform. 
+                This is your central hub for overseeing all aspects of the Edutalks platform. 
                 Use the quick links below or the sidebar navigation to access different management sections.
               </p>
               <Button asChild size="lg" className="shadow-md hover:shadow-primary/40 transition-shadow">

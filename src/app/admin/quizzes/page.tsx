@@ -40,7 +40,7 @@ export default function QuizManagementPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-headline text-4xl">Quiz Management</h1>
-        <p className="text-muted-foreground font-body">Create, edit, and manage quizzes for LinguaVerse users.</p>
+        <p className="text-muted-foreground font-body">Create, edit, and manage quizzes for Edutalks users.</p>
       </div>
 
       <Card className="shadow-lg">

@@ -40,7 +40,7 @@ export default function TopicManagementPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-headline text-4xl">Topic Management</h1>
-        <p className="text-muted-foreground font-body">Oversee and manage daily discussion topics for LinguaVerse users.</p>
+        <p className="text-muted-foreground font-body">Oversee and manage daily discussion topics for Edutalks users.</p>
       </div>
 
       <Card className="shadow-lg">

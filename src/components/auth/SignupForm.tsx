@@ -64,7 +64,7 @@ export function SignupForm() {
       <CardHeader>
         <CardTitle className="font-headline text-3xl text-center">Create Your Account</CardTitle>
         <CardDescription className="text-center font-body">
-          Join LinguaVerse and start your language learning adventure!
+          Join Edutalks and start your language learning adventure!
         </CardDescription>
       </CardHeader>
       <CardContent>

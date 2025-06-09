@@ -36,7 +36,7 @@ export function VoiceCallInterface({ userName, userAvatar, onEndCall }: VoiceCal
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="font-headline text-2xl">In call with {userName}</CardTitle>
-            <CardDescription className="font-body text-primary/80">LinguaVerse Voice Call</CardDescription>
+            <CardDescription className="font-body text-primary/80">Edutalks Voice Call</CardDescription>
           </div>
           <div className="font-mono text-sm bg-background/70 px-2 py-1 rounded-md">
             {formatDuration(callDuration)}

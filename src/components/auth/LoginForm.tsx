@@ -57,7 +57,7 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle className="font-headline text-3xl text-center">Welcome Back!</CardTitle>
         <CardDescription className="text-center font-body">
-          Log in to continue your LinguaVerse journey.
+          Log in to continue your Edutalks journey.
         </CardDescription>
       </CardHeader>
       <CardContent>

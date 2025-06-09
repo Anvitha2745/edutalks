@@ -81,7 +81,7 @@ export default function AdminLayout({
           <Button variant="outline" onClick={handleAdminLogout} className="w-full font-body">
             <LogOut className="mr-2 h-4 w-4" /> Admin Logout
           </Button>
-          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} LinguaVerse Admin</p>
+          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} Edutalks Admin</p>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">

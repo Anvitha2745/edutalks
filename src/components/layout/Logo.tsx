@@ -9,7 +9,7 @@ export function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
     <Link href="/" className="flex items-center gap-2 group">
       <MessageCircleHeart className="text-primary group-hover:text-accent transition-colors duration-300" size={iconSize} />
       <span className={`font-headline font-bold ${textSizeClass} text-foreground group-hover:text-primary transition-colors duration-300`}>
-        LinguaVerse
+        Edutalks
       </span>
     </Link>
   );
