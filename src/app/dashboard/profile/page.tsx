@@ -17,7 +17,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { UploadCloud, Save } from "lucide-react";
+import { UploadCloud, Save, CreditCard, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
@@ -42,6 +43,13 @@ export default function ProfilePage() {
     defaultValues,
     mode: "onChange",
   });
+
+  // Mock subscription data
+  const mockSubscription = {
+    status: "Free User", // Could be "Premium", "Trial Active"
+    // trialEndDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(), // Example for trial
+    // nextBillingDate: "N/A",
+  };
 
   function onSubmit(data: ProfileFormValues) {
     console.log("Profile updated (mock):", data);
@@ -150,6 +158,33 @@ export default function ProfilePage() {
           </Form>
         </CardContent>
       </Card>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <CreditCard className="w-6 h-6 text-primary"/>
+            <CardTitle className="font-headline text-2xl">Subscription Status</CardTitle>
+          </div>
+          <CardDescription className="font-body">Manage your Edutalks subscription.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 font-body">
+            <p>Current Plan: <span className="font-semibold">{mockSubscription.status}</span></p>
+            {mockSubscription.status === "Trial Active" && mockSubscription.trialEndDate && (
+                <p>Trial Ends: <span className="font-semibold">{mockSubscription.trialEndDate}</span></p>
+            )}
+            {mockSubscription.status === "Premium" && mockSubscription.nextBillingDate &&(
+                 <p>Next Billing Date: <span className="font-semibold">{mockSubscription.nextBillingDate}</span></p>
+            )}
+             {mockSubscription.status !== "Premium" && (
+                 <Button asChild>
+                    <Link href="/dashboard/pricing">
+                        <ShieldCheck className="mr-2 h-4 w-4" /> Upgrade to Premium
+                    </Link>
+                </Button>
+            )}
+        </CardContent>
+      </Card>
+
 
        <Card className="shadow-lg">
         <CardHeader>

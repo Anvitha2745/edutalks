@@ -10,6 +10,7 @@ import {
   CheckCircle,
   MessageSquareQuote,
   UserCircle,
+  CreditCard, // Added icon for Pricing
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -33,6 +34,7 @@ const navItems = [
   { href: "/dashboard/quizzes", label: "Quizzes", icon: CheckCircle },
   { href: "/dashboard/pronunciation", label: "Pronunciation", icon: MessageSquareQuote },
   { href: "/dashboard/profile", label: "Profile", icon: UserCircle },
+  { href: "/dashboard/pricing", label: "Pricing", icon: CreditCard }, // Added Pricing link
 ];
 
 export default function DashboardLayout({
