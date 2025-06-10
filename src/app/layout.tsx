@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import PwaRegistry from '@/components/PwaRegistry'; // New import
+// PwaRegistry is no longer needed as next-pwa handles service worker registration
 
 export const metadata: Metadata = {
   title: 'Edutalks',
@@ -29,7 +29,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         {children}
         <Toaster />
-        <PwaRegistry /> {/* Add the client component for SW registration */}
+        {/* PwaRegistry component removed here */}
       </body>
     </html>
   );
