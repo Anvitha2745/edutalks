@@ -10,6 +10,7 @@ export function AppHeader() {
       <div className="container flex h-14 max-w-screen-2xl items-center px-4 md:px-8">
         <div className="mr-4 hidden md:flex">
           <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
+            {/* Ensure Logo is not a link itself when wrapped by another Link */}
             <Logo size="sm" isLink={false} />
           </Link>
         </div>
