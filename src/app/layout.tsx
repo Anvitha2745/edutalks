@@ -1,5 +1,5 @@
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
@@ -7,10 +7,18 @@ export const metadata: Metadata = {
   title: 'Edutalks',
   description: 'Learn English through voice calls, daily topics, and quizzes.',
   manifest: '/manifest.json', // manifest link
-  themeColor: '#64B5F6',      // Corresponds to primary color
   icons: {
     apple: '/icons/icon-192x192.png', // Basic Apple touch icon
+    // You can add more icon sizes here if needed
+    // icon: [
+    //   { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    //   { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    // ],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#64B5F6', // Corresponds to primary color
 };
 
 export default function RootLayout({
