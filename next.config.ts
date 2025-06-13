@@ -32,6 +32,7 @@ const nextAppConfig: NextConfig = {
       },
     ],
   },
+  allowedDevOrigins: ['http://9000-firebase-studio-1749402915609.cluster-zkm2jrwbnbd4awuedc2alqxrpk.cloudworkstations.dev'],
 };
 
 // Conditionally apply the PWA wrapper.
@@ -40,3 +41,4 @@ const nextAppConfig: NextConfig = {
 const finalConfig = process.env.NODE_ENV === 'production' ? withPWA(nextAppConfig) : nextAppConfig;
 
 export default finalConfig;
+
