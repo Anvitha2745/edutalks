@@ -3,14 +3,17 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, ShieldCheck, Sparkles, Award } from "lucide-react";
+import { CheckCircle, ShieldCheck, Sparkles, Award, Gift } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function PricingPage() {
   const { toast } = useToast();
 
   const handleSubscribeClick = () => {
+    // In a real app, also check the referral code input
     toast({
       title: "Subscription Initiated (Mock)",
       description: "In a real application, this would lead to a payment gateway.",
@@ -57,7 +60,14 @@ export default function PricingPage() {
             ))}
           </ul>
         </CardContent>
-        <CardFooter className="flex flex-col items-center p-6 border-t">
+        <CardFooter className="flex flex-col items-center p-6 border-t space-y-4">
+          <div className="w-full">
+            <Label htmlFor="referralCode" className="font-body flex items-center mb-1 text-sm">
+              <Gift className="w-4 h-4 mr-2 text-muted-foreground" />
+              Referral Code (Optional)
+            </Label>
+            <Input id="referralCode" placeholder="Enter referral code" className="font-body" />
+          </div>
           <Button size="lg" className="w-full font-body text-lg" onClick={handleSubscribeClick}>
             Start Your 1-Day Free Trial & Subscribe
           </Button>
@@ -91,3 +101,5 @@ export default function PricingPage() {
     </div>
   );
 }
+
+    

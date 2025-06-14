@@ -10,6 +10,8 @@ import {
   BookCopy,
   LogOut,
   Shield,
+  UsersRound, // For Referral System
+  Cog, // Fallback, consider Settings2 or SlidersHorizontal if more specific
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -22,7 +24,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { AppHeader } from "@/components/layout/AppHeader"; // Can be reused or a new AdminHeader created
+import { AppHeader } from "@/components/layout/AppHeader"; 
 import { Logo } from "@/components/layout/Logo";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -33,6 +35,7 @@ const adminNavItems = [
   { href: "/admin/users", label: "User Management", icon: Users },
   { href: "/admin/quizzes", label: "Quiz Management", icon: FileQuestion },
   { href: "/admin/topics", label: "Topic Management", icon: BookCopy },
+  { href: "/admin/referrals", label: "Referral System", icon: UsersRound }, // Changed icon
 ];
 
 export default function AdminLayout({
@@ -44,7 +47,6 @@ export default function AdminLayout({
   const router = useRouter();
 
   const handleAdminLogout = () => {
-    // Mock logout, redirect to admin login
     console.log("Admin logged out");
     router.push("/auth/admin/login");
   };
@@ -62,7 +64,7 @@ export default function AdminLayout({
           <SidebarMenu>
             {adminNavItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} legacyBehavior passHref>
+                <Link href={item.href} asChild>
                   <SidebarMenuButton
                     isActive={pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))}
                     tooltip={{ children: item.label, className: "font-body" }}
@@ -85,7 +87,6 @@ export default function AdminLayout({
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
-        {/* Reusing AppHeader, could be an AdminHeader for more specific needs */}
         <AppHeader /> 
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-muted/40">
           {children}
@@ -94,3 +95,5 @@ export default function AdminLayout({
     </SidebarProvider>
   );
 }
+
+    

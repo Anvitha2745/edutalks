@@ -19,7 +19,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2 } from "lucide-react";
+import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2, Gift, Wallet as WalletIcon, Copy } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -65,6 +65,9 @@ export default function ProfilePage() {
     status: "Free User",
   };
 
+  const mockReferralCode = "EDUTALKSXYZ";
+  const mockWalletBalance = "₹0.00";
+
   function onSubmit(data: ProfileFormValues) {
     console.log("Profile updated (mock):", data);
     toast({
@@ -72,6 +75,11 @@ export default function ProfilePage() {
       description: "Your profile information has been saved (mock).",
     });
   }
+
+  const handleCopyReferralCode = () => {
+    navigator.clipboard.writeText(mockReferralCode);
+    toast({ title: "Referral Code Copied!", description: `${mockReferralCode} copied to clipboard.` });
+  };
 
   const handleAvatarFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -139,7 +147,6 @@ export default function ProfilePage() {
   }, [videoStream]);
 
   useEffect(() => {
-    // Cleanup camera stream when component unmounts or showCamera becomes false
     return () => {
       if (videoStream) {
         videoStream.getTracks().forEach(track => track.stop());
@@ -363,6 +370,50 @@ export default function ProfilePage() {
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-3">
+            <Gift className="w-6 h-6 text-primary"/>
+            <CardTitle className="font-headline text-2xl">Referral Program</CardTitle>
+          </div>
+          <CardDescription className="font-body">Invite friends and earn rewards!</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 font-body">
+          <div>
+            <FormLabel>Your Unique Referral Code</FormLabel>
+            <div className="flex items-center gap-2 mt-1">
+              <Input readOnly value={mockReferralCode} className="font-mono bg-muted/50" />
+              <Button variant="outline" size="icon" onClick={handleCopyReferralCode} aria-label="Copy referral code">
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Share this code with your friends. When they sign up for a yearly subscription using your code, you'll receive ₹50 in your wallet!
+          </p>
+          <Button variant="link" asChild className="p-0 h-auto">
+            <Link href="#">View Referral Terms & Conditions</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <WalletIcon className="w-6 h-6 text-primary"/>
+            <CardTitle className="font-headline text-2xl">My Wallet</CardTitle>
+          </div>
+          <CardDescription className="font-body">Your available balance from referrals.</CardDescription>
+        </CardHeader>
+        <CardContent className="font-body">
+          <p className="text-3xl font-bold">{mockWalletBalance}</p>
+          <p className="text-sm text-muted-foreground mt-1">Balance can be used for future Edutalks services (coming soon).</p>
+        </CardContent>
+        <CardFooter>
+            <Button variant="outline" disabled>Withdraw Funds (Coming Soon)</Button>
+        </CardFooter>
+      </Card>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-3">
             <MapPin className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">Location Services</CardTitle>
           </div>
@@ -468,5 +519,4 @@ export default function ProfilePage() {
   );
 }
 
-
-      
+    

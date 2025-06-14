@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Users, FileQuestion, BookCopy, ShieldCheck } from "lucide-react";
+import { ArrowRight, Users, FileQuestion, BookCopy, ShieldCheck, UsersRound } from "lucide-react";
 import Image from "next/image";
 
 export default function AdminDashboardPage() {
@@ -10,6 +10,7 @@ export default function AdminDashboardPage() {
     { href: "/admin/users", label: "Manage Users", icon: Users, description: "View, edit, and manage user accounts." },
     { href: "/admin/quizzes", label: "Manage Quizzes", icon: FileQuestion, description: "Create, update, and delete quizzes." },
     { href: "/admin/topics", label: "Manage Topics", icon: BookCopy, description: "Oversee daily discussion topics." },
+    { href: "/admin/referrals", label: "Referral System", icon: UsersRound, description: "Configure and monitor referrals." },
   ];
 
   return (
@@ -21,7 +22,7 @@ export default function AdminDashboardPage() {
             <CardTitle className="font-headline text-4xl">Admin Dashboard</CardTitle>
           </div>
           <CardDescription className="font-body text-lg text-foreground/80">
-            Welcome, Administrator! Manage Edutalks content and users from here.
+            Welcome, Administrator! Manage Edutalks content, users, and system settings from here.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -53,7 +54,7 @@ export default function AdminDashboardPage() {
 
       <div>
         <h2 className="font-headline text-3xl mb-6">Management Sections</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6"> {/* Adjusted grid for potentially 4 items */}
           {quickLinks.map((link) => (
             <Card key={link.href} className="hover:shadow-xl transition-shadow duration-300 flex flex-col border-border hover:border-primary/50">
               <CardHeader>
@@ -91,8 +92,8 @@ export default function AdminDashboardPage() {
               <p className="text-2xl font-bold">56</p>
             </div>
             <div className="p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">Published Topics</p>
-              <p className="text-2xl font-bold">189</p>
+              <p className="text-sm text-muted-foreground">Successful Referrals</p>
+              <p className="text-2xl font-bold">78</p>
             </div>
           </div>
         </CardContent>
@@ -101,3 +102,5 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    
