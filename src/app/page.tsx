@@ -65,7 +65,7 @@ export default function HomePage() {
               Unlock your English potential with interactive voice calls, daily topics, engaging quizzes, and AI-powered pronunciation feedback.
             </p>
             <Button size="lg" asChild className="shadow-lg hover:shadow-primary/50 transition-shadow">
-              <Link href="/auth/signup">Get Started for Free</Link>
+              <Link href="/dashboard/pricing">Subscribe and Get Started</Link>
             </Button>
             <div className="mt-16">
               <Image
@@ -88,7 +88,7 @@ export default function HomePage() {
               Everything You Need to Succeed
             </h2>
             <p className="mb-12 text-center text-muted-foreground font-body max-w-xl mx-auto">
-              Edutalks offers a comprehensive suite of tools to help you master English communication.
+              Edutalks offers a comprehensive suite of tools to help you master English communication through our yearly subscription.
             </p>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {features.map((feature) => (
@@ -118,7 +118,7 @@ export default function HomePage() {
               Join thousands of learners and take your English skills to the next level with Edutalks.
             </p>
             <Button size="lg" asChild className="shadow-lg hover:shadow-primary/50 transition-shadow">
-              <Link href="/auth/signup">Sign Up Now</Link>
+              <Link href="/dashboard/pricing">Join Edutalks Premium</Link>
             </Button>
           </div>
         </section>

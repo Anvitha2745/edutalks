@@ -46,7 +46,7 @@ export default function PricingPage() {
           <div className="p-3 bg-primary text-primary-foreground rounded-full inline-block mb-3">
             <ShieldCheck className="w-10 h-10" />
           </div>
-          <CardTitle className="font-headline text-3xl">Edutalks Premium</CardTitle>
+          <CardTitle className="font-headline text-3xl">Edutalks Premium Yearly Plan</CardTitle>
           <CardDescription className="font-body text-base">One-Time Payment for Full Year Access</CardDescription>
           {/* Pricing is kept in $ for international audience, referral reward is in INR */}
           <p className="font-headline text-4xl text-primary mt-2">$49.99<span className="text-lg text-muted-foreground">/year</span></p>
@@ -83,27 +83,10 @@ export default function PricingPage() {
         </CardFooter>
       </Card>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl">Current Free Plan</CardTitle>
-          <CardDescription className="font-body">
-            Enjoy basic access to Edutalks.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            <ul className="space-y-2 font-body text-muted-foreground">
-                <li>Limited voice call duration</li>
-                <li>Access to select quizzes</li>
-                <li>Today&apos;s daily topic only</li>
-                <li>Basic pronunciation feedback</li>
-            </ul>
-        </CardContent>
-        <CardFooter>
-             <Button variant="outline" asChild className="font-body">
-                <Link href="/dashboard">Continue with Free Plan</Link>
-            </Button>
-        </CardFooter>
-      </Card>
+      <div className="text-center font-body text-muted-foreground">
+        <p>Edutalks requires a yearly subscription to access all features.</p>
+        <p>If you have any questions, please <Button variant="link" asChild><Link href="/contact">contact support</Link></Button>.</p>
+      </div>
     </div>
   );
 }

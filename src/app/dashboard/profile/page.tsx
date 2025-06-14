@@ -60,29 +60,26 @@ export default function ProfilePage() {
   const [localStorageValue, setLocalStorageValue] = useState<string>("");
   const localStorageKey = "edutalks_profile_demo_data";
 
-  // Mock subscription data
+  // Mock subscription data - assuming user is subscribed if they reach this page.
   const mockSubscription = {
-    status: "Free User", // Could be "Premium User"
+    status: "Premium User (Yearly)", 
+    // In a real app, you might fetch renewalDate from Firebase
+    renewalDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toLocaleDateString(),
   };
 
-  // This would be fetched from Firebase for the logged-in user
   const [userReferralCode, setUserReferralCode] = useState<string>("LOADING..."); 
-  // This would be fetched from Firebase
   const [walletBalance, setWalletBalance] = useState<string>("₹0.00"); 
 
   useEffect(() => {
-    // Simulate fetching user-specific data like referral code and wallet balance
-    // In a real app, this would be an async call to Firebase
     setTimeout(() => {
-      setUserReferralCode("EDUUSER123"); // Example unique code
-      setWalletBalance("₹125.50"); // Example balance
+      setUserReferralCode("EDUUSER123"); 
+      setWalletBalance("₹125.50"); 
     }, 1000);
   }, []);
 
 
   function onSubmit(data: ProfileFormValues) {
     console.log("Profile updated (mock):", data);
-    // In a real app, this would save to Firebase Firestore
     toast({
       title: "Profile Updated",
       description: "Your profile information has been saved (mock).",
@@ -102,7 +99,6 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onload = (e) => {
         setAvatarSrc(e.target?.result as string);
-        // In a real app, upload to Firebase Storage and update user profile in Firestore
         toast({ title: "Avatar Updated", description: "New avatar previewed. Save changes to persist." });
       };
       reader.readAsDataURL(file);
@@ -145,7 +141,6 @@ export default function ProfilePage() {
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/png");
         setAvatarSrc(dataUrl);
-        // In a real app, upload to Firebase Storage and update user profile in Firestore
         toast({ title: "Photo Captured", description: "Avatar updated with new photo. Save changes to persist." });
       }
       closeCamera();
@@ -251,7 +246,7 @@ export default function ProfilePage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 mb-8">
                 <Avatar className="h-32 w-32 md:h-40 md:w-40 border-2 border-primary shadow-md">
-                  <AvatarImage src={avatarSrc || "https://placehold.co/150x150.png"} alt="User avatar" data-ai-hint="person avatar" />
+                  <AvatarImage src={avatarSrc || "https://placehold.co/150x150.png"} alt="User avatar" data-ai-hint="person avatar"/>
                   <AvatarFallback className="text-3xl">
                     {defaultValues.fullName ? defaultValues.fullName.substring(0, 2).toUpperCase() : "EU"}
                   </AvatarFallback>
@@ -528,13 +523,8 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-3 font-body">
             <p>Current Plan: <span className="font-semibold">{mockSubscription.status}</span></p>
-            {mockSubscription.status !== "Premium" && (
-                 <Button asChild>
-                    <Link href="/dashboard/pricing">
-                        <ShieldCheck className="mr-2 h-4 w-4" /> Upgrade to Premium
-                    </Link>
-                </Button>
-            )}
+            <p>Renews on: <span className="font-semibold">{mockSubscription.renewalDate}</span></p>
+            <Button variant="outline" disabled>Manage Subscription (Mock)</Button>
         </CardContent>
       </Card>
 
@@ -552,4 +542,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
