@@ -48,7 +48,7 @@ export default function PricingPage() {
           </div>
           <CardTitle className="font-headline text-3xl">Edutalks Premium Yearly Plan</CardTitle>
           <CardDescription className="font-body text-base">One-Time Payment for Full Year Access</CardDescription>
-          <p className="font-headline text-4xl text-primary mt-2">₹2999<span className="text-lg text-muted-foreground">/year</span></p>
+          <p className="font-headline text-4xl text-primary mt-2">₹499<span className="text-lg text-muted-foreground">/year</span></p>
           <p className="font-body text-sm text-accent font-semibold mt-1">Includes a 1-Day Free Trial!</p>
         </CardHeader>
         <CardContent className="p-6">
