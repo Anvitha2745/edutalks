@@ -13,10 +13,12 @@ export default function PricingPage() {
   const { toast } = useToast();
 
   const handleSubscribeClick = () => {
-    // In a real app, also check the referral code input
+    // In a real app, this would integrate with a payment gateway (e.g., Stripe, Razorpay)
+    // and then update subscription status in Firebase.
+    // The referral code from the input would be sent to the backend for validation and application.
     toast({
       title: "Subscription Initiated (Mock)",
-      description: "In a real application, this would lead to a payment gateway.",
+      description: "In a real application, this would lead to a payment gateway and then update Firebase.",
     });
   };
 
@@ -46,6 +48,7 @@ export default function PricingPage() {
           </div>
           <CardTitle className="font-headline text-3xl">Edutalks Premium</CardTitle>
           <CardDescription className="font-body text-base">One-Time Payment for Full Year Access</CardDescription>
+          {/* Pricing is kept in $ for international audience, referral reward is in INR */}
           <p className="font-headline text-4xl text-primary mt-2">$49.99<span className="text-lg text-muted-foreground">/year</span></p>
           <p className="font-body text-sm text-accent font-semibold mt-1">Includes a 1-Day Free Trial!</p>
         </CardHeader>
@@ -66,7 +69,10 @@ export default function PricingPage() {
               <Gift className="w-4 h-4 mr-2 text-muted-foreground" />
               Referral Code (Optional)
             </Label>
-            <Input id="referralCode" placeholder="Enter referral code" className="font-body" />
+            <Input id="referralCode" placeholder="Enter referral code (e.g., EDUUSER123)" className="font-body" />
+            <p className="text-xs text-muted-foreground mt-1">
+              If you have a referral code, enter it here for potential benefits!
+            </p>
           </div>
           <Button size="lg" className="w-full font-body text-lg" onClick={handleSubscribeClick}>
             Start Your 1-Day Free Trial & Subscribe
@@ -101,5 +107,3 @@ export default function PricingPage() {
     </div>
   );
 }
-
-    

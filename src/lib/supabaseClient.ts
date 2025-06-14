@@ -1,14 +1,4 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+// DEPRECATED: This Supabase client is no longer in use.
+// The application is transitioning to Google Firebase for backend services.
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl) {
-  throw new Error("Missing environment variable NEXT_PUBLIC_SUPABASE_URL");
-}
-if (!supabaseAnonKey) {
-  throw new Error("Missing environment variable NEXT_PUBLIC_SUPABASE_ANON_KEY");
-}
-
-// Create a single supabase client for interacting with your database
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = null;

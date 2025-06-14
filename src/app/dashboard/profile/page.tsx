@@ -62,14 +62,27 @@ export default function ProfilePage() {
 
   // Mock subscription data
   const mockSubscription = {
-    status: "Free User",
+    status: "Free User", // Could be "Premium User"
   };
 
-  const mockReferralCode = "EDUTALKSXYZ";
-  const mockWalletBalance = "₹0.00";
+  // This would be fetched from Firebase for the logged-in user
+  const [userReferralCode, setUserReferralCode] = useState<string>("LOADING..."); 
+  // This would be fetched from Firebase
+  const [walletBalance, setWalletBalance] = useState<string>("₹0.00"); 
+
+  useEffect(() => {
+    // Simulate fetching user-specific data like referral code and wallet balance
+    // In a real app, this would be an async call to Firebase
+    setTimeout(() => {
+      setUserReferralCode("EDUUSER123"); // Example unique code
+      setWalletBalance("₹125.50"); // Example balance
+    }, 1000);
+  }, []);
+
 
   function onSubmit(data: ProfileFormValues) {
     console.log("Profile updated (mock):", data);
+    // In a real app, this would save to Firebase Firestore
     toast({
       title: "Profile Updated",
       description: "Your profile information has been saved (mock).",
@@ -77,8 +90,10 @@ export default function ProfilePage() {
   }
 
   const handleCopyReferralCode = () => {
-    navigator.clipboard.writeText(mockReferralCode);
-    toast({ title: "Referral Code Copied!", description: `${mockReferralCode} copied to clipboard.` });
+    if (userReferralCode && userReferralCode !== "LOADING...") {
+      navigator.clipboard.writeText(userReferralCode);
+      toast({ title: "Referral Code Copied!", description: `${userReferralCode} copied to clipboard.` });
+    }
   };
 
   const handleAvatarFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +102,8 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onload = (e) => {
         setAvatarSrc(e.target?.result as string);
-        toast({ title: "Avatar Updated", description: "New avatar previewed." });
+        // In a real app, upload to Firebase Storage and update user profile in Firestore
+        toast({ title: "Avatar Updated", description: "New avatar previewed. Save changes to persist." });
       };
       reader.readAsDataURL(file);
     }
@@ -129,7 +145,8 @@ export default function ProfilePage() {
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/png");
         setAvatarSrc(dataUrl);
-        toast({ title: "Photo Captured", description: "Avatar updated with new photo." });
+        // In a real app, upload to Firebase Storage and update user profile in Firestore
+        toast({ title: "Photo Captured", description: "Avatar updated with new photo. Save changes to persist." });
       }
       closeCamera();
     }
@@ -182,7 +199,7 @@ export default function ProfilePage() {
       title: "Contacts API (Experimental)",
       description: "The Contact Picker API allows users to select contacts to share. Full implementation requires careful handling of permissions and browser compatibility. See console for more info.",
     });
-    console.log("To implement contact access, use the Contact Picker API: navigator.contacts.select(['name', 'email'], {multiple: true}). This is a user-initiated action.");
+    console.log("To implement contact access, use the Contact Picker API: navigator.contacts.select(['name', 'email'], {multiple: true}). This is a user-initiated action and requires HTTPS.");
   };
 
   const handleSaveToLocalStorage = () => {
@@ -379,14 +396,15 @@ export default function ProfilePage() {
           <div>
             <FormLabel>Your Unique Referral Code</FormLabel>
             <div className="flex items-center gap-2 mt-1">
-              <Input readOnly value={mockReferralCode} className="font-mono bg-muted/50" />
-              <Button variant="outline" size="icon" onClick={handleCopyReferralCode} aria-label="Copy referral code">
+              <Input readOnly value={userReferralCode} className="font-mono bg-muted/50" />
+              <Button variant="outline" size="icon" onClick={handleCopyReferralCode} aria-label="Copy referral code" disabled={userReferralCode === "LOADING..."}>
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
+             <p className="text-xs text-muted-foreground mt-1">This code is unique to you. It would be generated and stored by Firebase.</p>
           </div>
           <p className="text-sm text-muted-foreground">
-            Share this code with your friends. When they sign up for a yearly subscription using your code, you'll receive ₹50 in your wallet!
+            Share this code with your friends. When they sign up for a yearly subscription using your code, you&apos;ll receive a reward (e.g., ₹50, amount managed by admin) in your wallet!
           </p>
           <Button variant="link" asChild className="p-0 h-auto">
             <Link href="#">View Referral Terms & Conditions</Link>
@@ -403,9 +421,10 @@ export default function ProfilePage() {
           <CardDescription className="font-body">Your available balance from referrals and how to use it.</CardDescription>
         </CardHeader>
         <CardContent className="font-body space-y-3">
-          <p className="text-3xl font-bold">{mockWalletBalance}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-3xl font-bold">{walletBalance}</p>
+           <p className="text-sm text-muted-foreground">
             Your wallet balance can be used to get discounts on future Edutalks subscriptions.
+            This balance would be fetched from Firebase.
           </p>
           <p className="text-sm text-muted-foreground">
             You can also withdraw your balance to your bank account or UPI ID.
@@ -458,7 +477,7 @@ export default function ProfilePage() {
         <CardContent className="font-body">
             <Button onClick={handleAccessContacts} variant="outline">Access Contacts</Button>
             <p className="text-xs text-muted-foreground mt-2">
-                This feature would use the Contact Picker API, allowing you to select contacts to share with the app. Browser support may vary.
+                This feature would use the Contact Picker API, allowing you to select contacts to share with the app. Browser support may vary. Requires HTTPS.
             </p>
         </CardContent>
       </Card>
@@ -526,5 +545,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
