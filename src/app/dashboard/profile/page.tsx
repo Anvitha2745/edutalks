@@ -19,7 +19,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2, Gift, Wallet as WalletIcon, Copy } from "lucide-react";
+import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2, Gift, Wallet as WalletIcon, Copy, Info } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -429,6 +429,13 @@ export default function ProfilePage() {
           <p className="text-sm text-muted-foreground">
             You can also withdraw your balance to your bank account or UPI ID.
           </p>
+          <Alert variant="default" className="bg-accent/10 border-accent/30 text-accent-foreground/80">
+            <Info className="h-4 w-4 text-accent" />
+            <AlertTitle className="font-headline text-accent">Important</AlertTitle>
+            <AlertDescription>
+              Unused wallet balance will expire 90 days after it is credited.
+            </AlertDescription>
+          </Alert>
         </CardContent>
         <CardFooter className="flex-col items-start space-y-3">
             <Button variant="outline" disabled>Withdraw Funds (Coming Soon)</Button>
@@ -545,3 +552,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+
