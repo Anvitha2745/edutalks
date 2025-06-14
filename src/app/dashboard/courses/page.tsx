@@ -3,11 +3,12 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, GraduationCap, Tag, Search, ListFilter } from "lucide-react";
+import { ArrowRight, GraduationCap, Tag, Search, ListFilter, PercentCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 
 export interface CourseListItem {
   id: string;
@@ -18,16 +19,20 @@ export interface CourseListItem {
   offerPriceINR?: number;
   imageUrl: string;
   instructor?: string;
+  isIncludedWithSubscription?: boolean; // New field
+  currentProgress?: number; // Mock progress 0-100
+  dataAiHint?: string;
 }
 
 const mockCourses: CourseListItem[] = [
   {
     id: "course1",
-    title: "Advanced English Grammar Mastery",
+    title: "Advanced English Grammar Mastery (Core)",
     category: "Grammar",
-    description: "Deep dive into complex grammatical structures, tenses, and usage for fluent and accurate English.",
-    priceINR: 1999,
-    offerPriceINR: 1499,
+    description: "Deep dive into complex grammatical structures, tenses, and usage for fluent and accurate English. Included with your subscription.",
+    priceINR: 0, // Or handle display differently if included
+    isIncludedWithSubscription: true,
+    currentProgress: 75, // Mock progress
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Dr. Emily Carter",
     dataAiHint: "grammar textbook education"
@@ -38,6 +43,7 @@ const mockCourses: CourseListItem[] = [
     category: "Professional",
     description: "Learn essential vocabulary, phrases, and communication strategies for the modern workplace.",
     priceINR: 2499,
+    currentProgress: 30, // Mock progress
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Mr. John Smith",
     dataAiHint: "business meeting presentation"
@@ -49,6 +55,7 @@ const mockCourses: CourseListItem[] = [
     description: "Comprehensive preparation for all sections of the IELTS exam with mock tests and expert tips.",
     priceINR: 2999,
     offerPriceINR: 2499,
+    currentProgress: 0, // Mock progress
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Ms. Sarah Lee",
     dataAiHint: "exam study success"
@@ -59,6 +66,7 @@ const mockCourses: CourseListItem[] = [
     category: "Speaking",
     description: "Practice real-life conversations, improve pronunciation, and build confidence in speaking English.",
     priceINR: 1599,
+    currentProgress: 10, // Mock progress
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Mr. David Miller",
     dataAiHint: "people talking conversation"
@@ -75,7 +83,7 @@ export default function CoursesPage() {
             Explore Courses
           </h1>
           <p className="text-muted-foreground font-body">
-            Enhance your skills with our specialized English courses. Purchase individually.
+            Enhance your skills with our specialized English courses. Some courses may be included with your subscription.
           </p>
         </div>
         {/* Placeholder for future "Suggest a Course" button if needed */}
@@ -114,24 +122,38 @@ export default function CoursesPage() {
               </CardHeader>
               <CardContent className="flex-grow">
                 <p className="font-body text-sm text-muted-foreground line-clamp-3 mb-3">{course.description}</p>
-                <div className="flex items-baseline gap-2">
-                  {course.offerPriceINR ? (
-                    <>
-                      <p className="font-body text-2xl font-semibold text-primary">₹{course.offerPriceINR}</p>
-                      <p className="font-body text-lg text-muted-foreground line-through">₹{course.priceINR}</p>
-                    </>
-                  ) : (
-                    <p className="font-body text-2xl font-semibold text-primary">₹{course.priceINR}</p>
-                  )}
-                </div>
-                {course.offerPriceINR && (
+                {!course.isIncludedWithSubscription && (
+                  <div className="flex items-baseline gap-2">
+                    {course.offerPriceINR ? (
+                      <>
+                        <p className="font-body text-2xl font-semibold text-primary">₹{course.offerPriceINR}</p>
+                        <p className="font-body text-lg text-muted-foreground line-through">₹{course.priceINR}</p>
+                      </>
+                    ) : (
+                      <p className="font-body text-2xl font-semibold text-primary">₹{course.priceINR}</p>
+                    )}
+                  </div>
+                )}
+                {course.offerPriceINR && !course.isIncludedWithSubscription && (
                     <Badge variant="destructive" className="mt-1 font-body">Special Offer!</Badge>
+                )}
+                {course.isIncludedWithSubscription && (
+                  <Badge variant="default" className="mt-1 font-body bg-green-600 hover:bg-green-700">Included with Subscription</Badge>
+                )}
+                 {typeof course.currentProgress === 'number' && course.currentProgress > 0 && (
+                  <div className="mt-3">
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                      <span>Progress</span>
+                      <span>{course.currentProgress}%</span>
+                    </div>
+                    <Progress value={course.currentProgress} className="h-2" />
+                  </div>
                 )}
               </CardContent>
               <CardFooter>
                 <Button asChild className="w-full font-body">
                   <Link href={`/dashboard/courses/${course.id}`}>
-                    View Details <ArrowRight className="ml-2 h-4 w-4" />
+                    {course.isIncludedWithSubscription || (course.currentProgress || 0) > 0 ? "Continue Learning" : "View Details"} <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardFooter>

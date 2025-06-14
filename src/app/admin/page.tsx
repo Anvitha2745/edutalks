@@ -2,12 +2,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Users, FileQuestion, BookCopy, ShieldCheck, UsersRound, GraduationCap, BadgePercent, TicketPercent } from "lucide-react";
+import { ArrowRight, Users, FileQuestion, BookCopy, ShieldCheck, UsersRound, GraduationCap, BadgePercent, TicketPercent, BookUser } from "lucide-react";
 import Image from "next/image";
 
 export default function AdminDashboardPage() {
   const quickLinks = [
-    { href: "/admin/users", label: "Manage Users", icon: Users, description: "View, edit, and manage user accounts." },
+    { href: "/admin/users", label: "Manage Users & Instructors", icon: Users, description: "View, edit, and manage user and instructor accounts." },
     { href: "/admin/courses", label: "Manage Courses", icon: GraduationCap, description: "Add, edit, and manage all courses." },
     { href: "/admin/quizzes", label: "Manage Quizzes", icon: FileQuestion, description: "Create, update, and delete quizzes." },
     { href: "/admin/topics", label: "Manage Topics", icon: BookCopy, description: "Oversee daily discussion topics." },
@@ -37,7 +37,7 @@ export default function AdminDashboardPage() {
               </p>
               <Button asChild size="lg" className="shadow-md hover:shadow-primary/40 transition-shadow">
                 <Link href="/admin/users">
-                  View Users <ArrowRight className="ml-2 h-5 w-5" />
+                  View Users & Instructors <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
             </div>

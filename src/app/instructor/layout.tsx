@@ -5,17 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Users,
-  FileQuestion,
-  BookCopy,
+  BookOpenCheck, // For My Courses
+  MessageSquareWarning, // For Doubts
   LogOut,
-  Shield,
-  UsersRound, 
-  Cog, 
-  GraduationCap, 
-  BadgePercent,  
-  TicketPercent, 
-  BookUser, // For Instructor Management
+  Presentation, // Changed icon
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -34,19 +27,13 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-const adminNavItems = [
-  { href: "/admin", label: "Admin Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "User & Instructor Mgt.", icon: Users }, // Updated label
-  { href: "/admin/courses", label: "Course Management", icon: GraduationCap },
-  { href: "/admin/quizzes", label: "Quiz Management", icon: FileQuestion },
-  { href: "/admin/topics", label: "Topic Management", icon: BookCopy },
-  { href: "/admin/referrals", label: "Referral System", icon: UsersRound },
-  { href: "/admin/offers", label: "Offer Management", icon: BadgePercent },
-  { href: "/admin/coupons", label: "Coupon Management", icon: TicketPercent },
-  // { href: "/admin/instructors", label: "Instructor Mgt.", icon: BookUser }, // Can be part of User Management
+const instructorNavItems = [
+  { href: "/instructor", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/instructor/courses", label: "My Courses", icon: BookOpenCheck },
+  { href: "/instructor/doubts", label: "Student Doubts", icon: MessageSquareWarning },
 ];
 
-export default function AdminLayout({
+export default function InstructorLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -54,9 +41,10 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleAdminLogout = () => {
-    console.log("Admin logged out");
-    router.push("/auth/admin/login");
+  const handleInstructorLogout = () => {
+    // Mock logout
+    console.log("Instructor logged out");
+    router.push("/auth/instructor/login");
   };
 
   return (
@@ -64,17 +52,17 @@ export default function AdminLayout({
       <Sidebar>
         <SidebarHeader className="p-4">
           <div className="flex items-center gap-2">
-            <Shield className="h-7 w-7 text-destructive" />
-            <span className="font-headline font-bold text-xl">Admin Panel</span>
+            <Presentation className="h-7 w-7 text-primary" />
+            <span className="font-headline font-bold text-xl">Instructor Panel</span>
           </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {adminNavItems.map((item) => (
+            {instructorNavItems.map((item) => (
               <SidebarMenuItem key={item.label}>
                 <Link href={item.href} asChild>
                   <SidebarMenuButton
-                    isActive={pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))}
+                    isActive={pathname === item.href || (item.href !== "/instructor" && pathname.startsWith(item.href))}
                     tooltip={{ children: item.label, className: "font-body" }}
                     className="font-body"
                   >
@@ -88,10 +76,10 @@ export default function AdminLayout({
         </SidebarContent>
         <Separator className="my-2" />
         <SidebarFooter className="p-4 space-y-2">
-          <Button variant="outline" onClick={handleAdminLogout} className="w-full font-body">
-            <LogOut className="mr-2 h-4 w-4" /> Admin Logout
+          <Button variant="outline" onClick={handleInstructorLogout} className="w-full font-body">
+            <LogOut className="mr-2 h-4 w-4" /> Instructor Logout
           </Button>
-          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} Edutalks Admin</p>
+          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} LinguaVerse Instructor</p>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
