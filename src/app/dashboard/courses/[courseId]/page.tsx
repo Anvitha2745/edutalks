@@ -5,32 +5,56 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BookOpen, Clock, Users, PlayCircle, Star, ShoppingCart, TicketPercent, CheckCheck, Lightbulb, NotebookText } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Users, PlayCircle, Star, ShoppingCart, TicketPercent, CheckCheck, Lightbulb, NotebookText, Video as VideoIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CourseListItem } from "../page"; 
+import type { CourseListItem as BaseCourseListItem } from "../page"; 
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 
+interface CourseModule {
+  id: string;
+  title: string;
+  videoUrl: string; // Mock URL for now, e.g., a placeholder image or actual video link
+  duration: string; // e.g., "10:32"
+  description?: string;
+}
+
+interface ExtendedCourseListItem extends BaseCourseListItem {
+  longDescription: string;
+  modules: CourseModule[];
+  learningOutcomes: string[];
+  prerequisites?: string[];
+  reviewsCount?: number;
+  rating?: number;
+}
+
 // Mock data, replace with actual data fetching logic
-const mockCourseDetails: Record<string, CourseListItem & { longDescription: string; modules: string[]; learningOutcomes: string[]; prerequisites?: string[]; reviewsCount?: number; rating?: number;  }> = {
+const mockCourseDetails: Record<string, ExtendedCourseListItem> = {
   course1: {
     id: "course1",
     title: "Advanced English Grammar Mastery (Core)",
     category: "Grammar",
     description: "Deep dive into complex grammatical structures, tenses, and usage for fluent and accurate English. Included with your subscription.",
     longDescription: "This comprehensive course covers advanced topics in English grammar, including conditional sentences, passive voice, reported speech, advanced verb patterns, and idiomatic expressions. Perfect for learners aiming for C1/C2 levels or those who want to refine their grammatical precision.",
-    priceINR: 0, // This is included
+    priceINR: 0,
     isIncludedWithSubscription: true,
     currentProgress: 75,
     imageUrl: "https://placehold.co/800x400.png",
     instructor: "Dr. Emily Carter",
-    modules: ["Advanced Tenses", "Conditionals & Subjunctives", "Passive Voice & Causatives", "Reported Speech", "Complex Sentences", "Advanced Vocabulary & Idioms"],
+    modules: [
+      { id: "m1a", title: "Advanced Tenses Overview", videoUrl: "https://placehold.co/800x450.png?text=Video+Advanced+Tenses", duration: "12:45" },
+      { id: "m1b", title: "Conditionals & Subjunctives In-depth", videoUrl: "https://placehold.co/800x450.png?text=Video+Conditionals", duration: "15:30" },
+      { id: "m1c", title: "Mastering Passive Voice & Causatives", videoUrl: "https://placehold.co/800x450.png?text=Video+Passive+Voice", duration: "10:12" },
+      { id: "m1d", title: "Reported Speech Nuances", videoUrl: "https://placehold.co/800x450.png?text=Video+Reported+Speech", duration: "11:05" },
+      { id: "m1e", title: "Building Complex Sentences", videoUrl: "https://placehold.co/800x450.png?text=Video+Complex+Sentences", duration: "14:20" },
+      { id: "m1f", title: "Advanced Vocabulary & Idioms in Context", videoUrl: "https://placehold.co/800x450.png?text=Video+Vocabulary", duration: "13:50" },
+    ],
     learningOutcomes: ["Master complex grammatical structures.", "Use a wide range of vocabulary and idioms.", "Improve writing and speaking accuracy.", "Understand nuanced English usage."],
     prerequisites: ["Intermediate (B1/B2) level of English proficiency."],
     reviewsCount: 120,
@@ -47,7 +71,14 @@ const mockCourseDetails: Record<string, CourseListItem & { longDescription: stri
     currentProgress: 30,
     imageUrl: "https://placehold.co/800x400.png",
     instructor: "Mr. John Smith",
-    modules: ["Effective Presentations", "Negotiation Skills", "Email & Report Writing", "Conducting Meetings", "Networking English", "Cross-Cultural Communication"],
+    modules: [
+      { id: "m2a", title: "Crafting Effective Presentations", videoUrl: "https://placehold.co/800x450.png?text=Video+Presentations", duration: "18:22" },
+      { id: "m2b", title: "Strategies for Successful Negotiations", videoUrl: "https://placehold.co/800x450.png?text=Video+Negotiations", duration: "20:10" },
+      { id: "m2c", title: "Professional Email & Report Writing", videoUrl: "https://placehold.co/800x450.png?text=Video+Email+Writing", duration: "16:45" },
+      { id: "m2d", title: "Leading and Participating in Meetings", videoUrl: "https://placehold.co/800x450.png?text=Video+Meetings", duration: "14:30" },
+      { id: "m2e", title: "Networking English for Professionals", videoUrl: "https://placehold.co/800x450.png?text=Video+Networking", duration: "12:00" },
+      { id: "m2f", title: "Navigating Cross-Cultural Communication", videoUrl: "https://placehold.co/800x450.png?text=Video+Cross+Cultural", duration: "15:55" },
+    ],
     learningOutcomes: ["Communicate confidently in business settings.", "Write professional emails and reports.", "Deliver impactful presentations.", "Navigate cross-cultural business interactions."],
     reviewsCount: 95,
     rating: 4.6,
@@ -60,15 +91,19 @@ export default function CourseDetailPage() {
   const params = useParams();
   const { toast } = useToast();
   const courseId = params.courseId as string;
-  const [course, setCourse] = useState<(CourseListItem & { longDescription: string; modules: string[]; learningOutcomes: string[]; prerequisites?: string[]; reviewsCount?: number; rating?: number; }) | null>(null);
-  const [isPurchased, setIsPurchased] = useState(false); // Mock purchase status for non-subscription courses
+  const [course, setCourse] = useState<ExtendedCourseListItem | null>(null);
+  const [isPurchased, setIsPurchased] = useState(false);
+  const [currentPlayingModule, setCurrentPlayingModule] = useState<CourseModule | null>(null);
 
   useEffect(() => {
     if (courseId) {
       const fetchedCourse = mockCourseDetails[courseId];
       setCourse(fetchedCourse || null);
-      if (fetchedCourse?.id === "course2") { // Mock course2 as purchased
-        setIsPurchased(true);
+      if (fetchedCourse?.id === "course2") { 
+        setIsPurchased(true); // Mock course2 as purchased for demo
+      }
+      if (fetchedCourse && fetchedCourse.isIncludedWithSubscription) {
+        setIsPurchased(true); // Subscription includes access
       }
     }
   }, [courseId]);
@@ -79,6 +114,8 @@ export default function CourseDetailPage() {
       title: "Purchase Initiated (Mock)",
       description: `You are about to purchase "${course.title}". In a real app, this would redirect to a payment gateway.`,
     });
+    // Simulate purchase for demo
+    // setIsPurchased(true); 
   };
 
   const handleRaiseDoubt = () => {
@@ -93,6 +130,10 @@ export default function CourseDetailPage() {
         title: "Notes Saved (Mock)",
         description: "Your notes for this course have been saved."
     })
+  }
+
+  const handlePlayModule = (moduleItem: CourseModule) => {
+    setCurrentPlayingModule(moduleItem);
   }
 
   if (!course) {
@@ -118,14 +159,16 @@ export default function CourseDetailPage() {
       <div className="grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-6">
           <Card className="shadow-lg overflow-hidden">
-            <Image
-              src={course.imageUrl}
-              alt={course.title}
-              width={800}
-              height={400}
-              className="w-full h-auto md:h-80 object-cover"
-              data-ai-hint={course.dataAiHint || "online learning course content"}
-            />
+            {!currentPlayingModule && course.imageUrl && (
+              <Image
+                src={course.imageUrl}
+                alt={course.title}
+                width={800}
+                height={400}
+                className="w-full h-auto md:h-80 object-cover"
+                data-ai-hint={course.dataAiHint || "online learning course content"}
+              />
+            )}
             <CardHeader>
               <div className="flex justify-between items-center mb-2">
                 <Badge variant="secondary" className="font-body">{course.category}</Badge>
@@ -177,25 +220,63 @@ export default function CourseDetailPage() {
               )}
             </CardContent>
           </Card>
+          
+          {userHasAccess && currentPlayingModule && (
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="font-headline text-2xl flex items-center">
+                  <PlayCircle className="w-6 h-6 mr-2 text-primary" /> Now Playing: {currentPlayingModule.title}
+                </CardTitle>
+                <CardDescription className="font-body">Duration: {currentPlayingModule.duration}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-muted rounded-md flex items-center justify-center">
+                  <Image 
+                    src={currentPlayingModule.videoUrl} 
+                    alt={`Video placeholder for ${currentPlayingModule.title}`} 
+                    width={800} 
+                    height={450} 
+                    className="rounded-md shadow-md object-cover w-full h-full"
+                    data-ai-hint="video player interface"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
 
           {userHasAccess && (
             <>
               <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Course Content</CardTitle>
+                    <CardTitle className="font-headline text-2xl flex items-center">
+                        <BookOpen className="w-6 h-6 mr-2 text-primary"/> Course Content
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-3">
-                    {course.modules.map((moduleName, index) => (
-                        <li key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors">
-                        <div className="flex items-center">
-                            <BookOpen className="w-5 h-5 mr-3 text-primary" />
-                            <span className="font-body">{moduleName}</span>
-                        </div>
-                        <Button variant="ghost" size="sm"><PlayCircle className="w-5 h-5 mr-1"/> Start Lesson</Button>
-                        </li>
-                    ))}
-                    </ul>
+                    {course.modules.length > 0 ? (
+                        <ul className="space-y-3">
+                        {course.modules.map((moduleItem) => (
+                            <li key={moduleItem.id} 
+                                className={`flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer ${currentPlayingModule?.id === moduleItem.id ? 'bg-primary/10 border-primary' : ''}`}
+                                onClick={() => handlePlayModule(moduleItem)}
+                            >
+                            <div className="flex items-center">
+                                {currentPlayingModule?.id === moduleItem.id ? <PlayCircle className="w-5 h-5 mr-3 text-primary"/> : <VideoIcon className="w-5 h-5 mr-3 text-muted-foreground" />}
+                                <div className="flex flex-col">
+                                  <span className="font-body">{moduleItem.title}</span>
+                                  <span className="text-xs text-muted-foreground font-body">Duration: {moduleItem.duration}</span>
+                                </div>
+                            </div>
+                            <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={(e) => { e.stopPropagation(); handlePlayModule(moduleItem);}}>
+                                {currentPlayingModule?.id === moduleItem.id ? "Playing" : "Play"}
+                            </Button>
+                            </li>
+                        ))}
+                        </ul>
+                    ) : (
+                        <p className="font-body text-muted-foreground text-center py-4">No modules available for this course yet.</p>
+                    )}
                 </CardContent>
               </Card>
 
@@ -289,7 +370,7 @@ export default function CourseDetailPage() {
                     <CardTitle className="font-headline text-lg">This course includes:</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 font-body text-sm">
-                    <p className="flex items-center"><Clock className="w-4 h-4 mr-2 text-muted-foreground"/> Approx. {course.modules.length * 5} hours of content</p>
+                    <p className="flex items-center"><Clock className="w-4 h-4 mr-2 text-muted-foreground"/> Approx. {course.modules.length * 0.25} hours of video content (mock)</p>
                     <p className="flex items-center"><BookOpen className="w-4 h-4 mr-2 text-muted-foreground"/> {course.modules.length} modules</p>
                     <p className="flex items-center"><Users className="w-4 h-4 mr-2 text-muted-foreground"/> Lifetime access</p>
                     {course.isIncludedWithSubscription && <p className="flex items-center"><CheckCheck className="w-4 h-4 mr-2 text-green-600"/> Included in your subscription</p>}
@@ -300,3 +381,5 @@ export default function CourseDetailPage() {
     </div>
   );
 }
+
+    
