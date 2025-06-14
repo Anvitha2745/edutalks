@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2, Gift, Wallet as WalletIcon, Copy, Info } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Label } from "@/components/ui/label"; // Ensure Label is imported
+import { Label } from "@/components/ui/label";
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
@@ -69,14 +69,19 @@ export default function ProfilePage() {
   };
 
   const [userReferralCode, setUserReferralCode] = useState<string>("LOADING..."); 
-  const [walletBalance, setWalletBalance] = useState<string>("₹0.00"); 
+  // Wallet balance would be fetched from Firebase in a real app. Initialized as a placeholder.
+  const [walletBalance, setWalletBalance] = useState<string>("₹0.00 (Fetching...)"); 
 
   useEffect(() => {
-    // Simulate fetching user-specific data from Firebase
+    // Simulate fetching user-specific referral code from Firebase
     setTimeout(() => {
       setUserReferralCode("EDUUSER123"); // Mock: This would be fetched from user's Firebase doc
-      setWalletBalance("₹125.50"); // Mock: This would be fetched from user's Firebase doc
     }, 1000);
+    // In a real app, wallet balance would be fetched here from Firebase
+    // For now, we'll just update the placeholder text after a delay
+    setTimeout(() => {
+        setWalletBalance("₹0.00"); // Update to a default or fetched value
+    }, 1500);
   }, []);
 
 
@@ -171,7 +176,7 @@ export default function ProfilePage() {
     };
   }, [videoStream]);
 
-  const handleGetLocation = () => {
+  const handleGetLocation = useCallback(() => {
     setLocation(null);
     setLocationError(null);
     if (navigator.geolocation) {
@@ -187,18 +192,26 @@ export default function ProfilePage() {
         (error) => {
           setLocationError(error.message);
           toast({ variant: "destructive", title: "Location Error", description: error.message });
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
-      setLocationError("Geolocation is not supported by this browser.");
-      toast({ variant: "destructive", title: "Location Not Supported", description: "Geolocation is not supported by this browser." });
+      const unsupportedError = "Geolocation is not supported by this browser.";
+      setLocationError(unsupportedError);
+      toast({ variant: "destructive", title: "Location Not Supported", description: unsupportedError });
     }
-  };
+  }, [toast]);
   
+  // Attempt to get location when the component mounts
+  useEffect(() => {
+    handleGetLocation();
+  }, [handleGetLocation]);
+
+
   const handleAccessContacts = () => {
     toast({
       title: "Contacts API (Experimental)",
-      description: "The Contact Picker API allows users to select contacts to share. Full implementation requires careful handling of permissions and browser compatibility. See console for more info.",
+      description: "The Contact Picker API allows users to select contacts to share. This requires user interaction due to privacy reasons. Full implementation requires careful handling of permissions and browser compatibility. See console for more info.",
     });
     console.log("To implement contact access, use the Contact Picker API: navigator.contacts.select(['name', 'email'], {multiple: true}). This is a user-initiated action and requires HTTPS.");
   };
@@ -212,16 +225,15 @@ export default function ProfilePage() {
     }
   };
 
-  const handleLoadFromLocalStorage = () => {
+  const handleLoadFromLocalStorage = useCallback(() => {
     const loadedData = localStorage.getItem(localStorageKey);
     if (loadedData) {
         setLocalStorageValue(loadedData);
-        toast({ title: "Data Loaded Locally", description: `Loaded: "${loadedData}"`});
     } else {
         setLocalStorageValue("");
-        toast({ title: "No Data Found", description: "Nothing found in local storage for this key."});
     }
-  };
+  }, [localStorageKey]); // Add localStorageKey to dependency array
+
    const handleClearLocalStorage = () => {
     localStorage.removeItem(localStorageKey);
     setLocalStorageValue("");
@@ -231,8 +243,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     handleLoadFromLocalStorage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleLoadFromLocalStorage]);
 
 
   return (
@@ -395,9 +406,9 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-4 font-body">
           <div>
-            <Label>Your Unique Referral Code</Label>
+            <Label htmlFor="userReferralCode">Your Unique Referral Code</Label>
             <div className="flex items-center gap-2 mt-1">
-              <Input readOnly value={userReferralCode} className="font-mono bg-muted/50" />
+              <Input id="userReferralCode" readOnly value={userReferralCode} className="font-mono bg-muted/50" />
               <Button variant="outline" size="icon" onClick={handleCopyReferralCode} aria-label="Copy referral code" disabled={userReferralCode === "LOADING..."}>
                 <Copy className="h-4 w-4" />
               </Button>
@@ -424,8 +435,7 @@ export default function ProfilePage() {
         <CardContent className="font-body space-y-3">
           <p className="text-3xl font-bold">{walletBalance}</p>
            <p className="text-sm text-muted-foreground">
-            Your wallet balance can be used to get discounts on future LinguaVerse subscriptions.
-            This balance would be fetched from Firebase.
+            Your wallet balance can be used to get discounts on future LinguaVerse subscriptions. This balance would be fetched from Firebase.
           </p>
           <p className="text-sm text-muted-foreground">
             You can also withdraw your balance to your bank account or UPI ID.
@@ -452,10 +462,10 @@ export default function ProfilePage() {
             <MapPin className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">Location Services</CardTitle>
           </div>
-           <CardDescription className="font-body">Allow access to your location for personalized experiences (mock).</CardDescription>
+           <CardDescription className="font-body">The app will attempt to access your location to personalize experiences. You may be prompted for permission.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 font-body">
-            <Button onClick={handleGetLocation} variant="outline">Get My Current Location</Button>
+            <Button onClick={handleGetLocation} variant="outline">Refresh My Current Location</Button>
             {location && (
                 <Alert>
                     <MapPin className="h-4 w-4" />
@@ -478,14 +488,14 @@ export default function ProfilePage() {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Users className="w-6 h-6 text-primary"/>
-            <CardTitle className="font-headline text-2xl">Contacts Access (Experimental)</CardTitle>
+            <CardTitle className="font-headline text-2xl">Contacts Access (User-Initiated)</CardTitle>
           </div>
-           <CardDescription className="font-body">Optionally share contacts for easier connection (uses Contact Picker API).</CardDescription>
+           <CardDescription className="font-body">To connect with friends easily, you can choose to share contacts from your device. This is a user-initiated action for privacy. The app cannot access contacts automatically.</CardDescription>
         </CardHeader>
         <CardContent className="font-body">
-            <Button onClick={handleAccessContacts} variant="outline">Access Contacts</Button>
+            <Button onClick={handleAccessContacts} variant="outline">Share Contacts (via Contact Picker)</Button>
             <p className="text-xs text-muted-foreground mt-2">
-                This feature would use the Contact Picker API, allowing you to select contacts to share with the app. Browser support may vary. Requires HTTPS.
+                This feature uses the Contact Picker API, allowing you to select specific contacts to share. Browser support may vary. Requires HTTPS.
             </p>
         </CardContent>
       </Card>
