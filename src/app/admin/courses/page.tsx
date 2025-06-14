@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Search, Edit, Trash2, Eye, Tag, GraduationCap } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, Edit, Trash2, Eye, Tag, GraduationCap, Users as UsersIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -75,7 +75,7 @@ export default function CourseManagementPage() {
                 <TableHead>Category</TableHead>
                 <TableHead>Price (₹)</TableHead>
                 <TableHead>Instructor</TableHead>
-                <TableHead>Students</TableHead>
+                <TableHead><UsersIcon className="inline-block h-4 w-4 mr-1"/>Students</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -134,3 +134,4 @@ export default function CourseManagementPage() {
     </div>
   );
 }
+

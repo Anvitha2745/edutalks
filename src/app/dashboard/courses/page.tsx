@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, GraduationCap, Tag, Search, ListFilter, PercentCircle } from "lucide-react";
+import { ArrowRight, GraduationCap, Tag, Search, ListFilter, PercentCircle, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
@@ -19,8 +19,9 @@ export interface CourseListItem {
   offerPriceINR?: number;
   imageUrl: string;
   instructor?: string;
-  isIncludedWithSubscription?: boolean; // New field
-  currentProgress?: number; // Mock progress 0-100
+  isIncludedWithSubscription?: boolean;
+  currentProgress?: number; 
+  studentsCount: number; // Added
   dataAiHint?: string;
 }
 
@@ -30,9 +31,10 @@ const mockCourses: CourseListItem[] = [
     title: "Advanced English Grammar Mastery (Core)",
     category: "Grammar",
     description: "Deep dive into complex grammatical structures, tenses, and usage for fluent and accurate English. Included with your subscription.",
-    priceINR: 0, // Or handle display differently if included
+    priceINR: 0, 
     isIncludedWithSubscription: true,
-    currentProgress: 75, // Mock progress
+    currentProgress: 75,
+    studentsCount: 150, // Added
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Dr. Emily Carter",
     dataAiHint: "grammar textbook education"
@@ -43,7 +45,8 @@ const mockCourses: CourseListItem[] = [
     category: "Professional",
     description: "Learn essential vocabulary, phrases, and communication strategies for the modern workplace.",
     priceINR: 2499,
-    currentProgress: 30, // Mock progress
+    currentProgress: 30,
+    studentsCount: 120, // Added
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Mr. John Smith",
     dataAiHint: "business meeting presentation"
@@ -55,7 +58,8 @@ const mockCourses: CourseListItem[] = [
     description: "Comprehensive preparation for all sections of the IELTS exam with mock tests and expert tips.",
     priceINR: 2999,
     offerPriceINR: 2499,
-    currentProgress: 0, // Mock progress
+    currentProgress: 0,
+    studentsCount: 95, // Added
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Ms. Sarah Lee",
     dataAiHint: "exam study success"
@@ -66,7 +70,8 @@ const mockCourses: CourseListItem[] = [
     category: "Speaking",
     description: "Practice real-life conversations, improve pronunciation, and build confidence in speaking English.",
     priceINR: 1599,
-    currentProgress: 10, // Mock progress
+    currentProgress: 10,
+    studentsCount: 210, // Added
     imageUrl: "https://placehold.co/600x400.png",
     instructor: "Mr. David Miller",
     dataAiHint: "people talking conversation"
@@ -86,7 +91,6 @@ export default function CoursesPage() {
             Enhance your skills with our specialized English courses. Some courses may be included with your subscription.
           </p>
         </div>
-        {/* Placeholder for future "Suggest a Course" button if needed */}
       </div>
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -122,6 +126,9 @@ export default function CoursesPage() {
               </CardHeader>
               <CardContent className="flex-grow">
                 <p className="font-body text-sm text-muted-foreground line-clamp-3 mb-3">{course.description}</p>
+                <div className="flex items-center text-sm text-muted-foreground font-body mb-2">
+                  <Users className="w-4 h-4 mr-1.5" /> {course.studentsCount}+ Students
+                </div>
                 {!course.isIncludedWithSubscription && (
                   <div className="flex items-baseline gap-2">
                     {course.offerPriceINR ? (

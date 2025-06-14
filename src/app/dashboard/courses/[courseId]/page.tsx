@@ -20,8 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 interface CourseModule {
   id: string;
   title: string;
-  videoUrl: string; // Mock URL for now, e.g., a placeholder image or actual video link
-  duration: string; // e.g., "10:32"
+  videoUrl: string; 
+  duration: string; 
   description?: string;
 }
 
@@ -32,9 +32,9 @@ interface ExtendedCourseListItem extends BaseCourseListItem {
   prerequisites?: string[];
   reviewsCount?: number;
   rating?: number;
+  // studentsCount is inherited from BaseCourseListItem
 }
 
-// Mock data, replace with actual data fetching logic
 const mockCourseDetails: Record<string, ExtendedCourseListItem> = {
   course1: {
     id: "course1",
@@ -45,6 +45,7 @@ const mockCourseDetails: Record<string, ExtendedCourseListItem> = {
     priceINR: 0,
     isIncludedWithSubscription: true,
     currentProgress: 75,
+    studentsCount: 150,
     imageUrl: "https://placehold.co/800x400.png",
     instructor: "Dr. Emily Carter",
     modules: [
@@ -69,6 +70,7 @@ const mockCourseDetails: Record<string, ExtendedCourseListItem> = {
     longDescription: "Tailored for professionals, this course focuses on effective communication in business contexts. Topics include presentations, negotiations, meetings, report writing, and cross-cultural communication. Enhance your professional image and career prospects.",
     priceINR: 2499,
     currentProgress: 30,
+    studentsCount: 120,
     imageUrl: "https://placehold.co/800x400.png",
     instructor: "Mr. John Smith",
     modules: [
@@ -83,6 +85,49 @@ const mockCourseDetails: Record<string, ExtendedCourseListItem> = {
     reviewsCount: 95,
     rating: 4.6,
     dataAiHint: "business meeting presentation"
+  },
+  course3: {
+    id: "course3",
+    title: "IELTS Preparation Intensive",
+    category: "Exam Prep",
+    description: "Comprehensive preparation for all sections of the IELTS exam with mock tests and expert tips.",
+    longDescription: "This intensive course prepares students for all four sections of the IELTS Academic and General Training tests: Listening, Reading, Writing, and Speaking. Includes mock tests, scoring guides, and strategies from experienced IELTS tutors.",
+    priceINR: 2999,
+    offerPriceINR: 2499,
+    currentProgress: 0,
+    studentsCount: 95,
+    imageUrl: "https://placehold.co/800x400.png",
+    instructor: "Ms. Sarah Lee",
+    modules: [
+      { id: "m3a", title: "IELTS Overview & Scoring", videoUrl: "https://placehold.co/800x450.png?text=Video+IELTS+Overview", duration: "10:00" },
+      { id: "m3b", title: "Listening Section Strategies", videoUrl: "https://placehold.co/800x450.png?text=Video+IELTS+Listening", duration: "20:15" },
+      { id: "m3c", title: "Reading Section Techniques", videoUrl: "https://placehold.co/800x450.png?text=Video+IELTS+Reading", duration: "22:30" },
+    ],
+    learningOutcomes: ["Understand the IELTS test format.", "Develop strategies for each section.", "Improve test-taking speed and accuracy.", "Achieve your target IELTS band score."],
+    prerequisites: ["Intermediate (B1) level of English."],
+    reviewsCount: 75,
+    rating: 4.7,
+    dataAiHint: "exam study success"
+  },
+   course4: {
+    id: "course4",
+    title: "Conversational English Fluency",
+    category: "Speaking",
+    description: "Practice real-life conversations, improve pronunciation, and build confidence in speaking English.",
+    longDescription: "Focus on practical conversational skills for everyday situations. This course includes role-playing exercises, discussions on various topics, and personalized feedback on fluency and pronunciation.",
+    priceINR: 1599,
+    currentProgress: 10,
+    studentsCount: 210,
+    imageUrl: "https://placehold.co/800x400.png",
+    instructor: "Mr. David Miller",
+    modules: [
+      { id: "m4a", title: "Greetings and Introductions", videoUrl: "https://placehold.co/800x450.png?text=Video+Greetings", duration: "08:15" },
+      { id: "m4b", title: "Ordering Food and Shopping", videoUrl: "https://placehold.co/800x450.png?text=Video+Shopping", duration: "12:30" },
+    ],
+    learningOutcomes: ["Speak more fluently and confidently.", "Improve pronunciation and intonation.", "Expand conversational vocabulary.", "Engage in everyday English conversations."],
+    reviewsCount: 150,
+    rating: 4.5,
+    dataAiHint: "people talking conversation"
   },
 };
 
@@ -100,10 +145,10 @@ export default function CourseDetailPage() {
       const fetchedCourse = mockCourseDetails[courseId];
       setCourse(fetchedCourse || null);
       if (fetchedCourse?.id === "course2") { 
-        setIsPurchased(true); // Mock course2 as purchased for demo
+        setIsPurchased(true); 
       }
       if (fetchedCourse && fetchedCourse.isIncludedWithSubscription) {
-        setIsPurchased(true); // Subscription includes access
+        setIsPurchased(true); 
       }
     }
   }, [courseId]);
@@ -114,8 +159,6 @@ export default function CourseDetailPage() {
       title: "Purchase Initiated (Mock)",
       description: `You are about to purchase "${course.title}". In a real app, this would redirect to a payment gateway.`,
     });
-    // Simulate purchase for demo
-    // setIsPurchased(true); 
   };
 
   const handleRaiseDoubt = () => {
@@ -372,6 +415,7 @@ export default function CourseDetailPage() {
                 <CardContent className="space-y-2 font-body text-sm">
                     <p className="flex items-center"><Clock className="w-4 h-4 mr-2 text-muted-foreground"/> Approx. {course.modules.length * 0.25} hours of video content (mock)</p>
                     <p className="flex items-center"><BookOpen className="w-4 h-4 mr-2 text-muted-foreground"/> {course.modules.length} modules</p>
+                    <p className="flex items-center"><Users className="w-4 h-4 mr-2 text-muted-foreground"/> {course.studentsCount}+ students enrolled</p>
                     <p className="flex items-center"><Users className="w-4 h-4 mr-2 text-muted-foreground"/> Lifetime access</p>
                     {course.isIncludedWithSubscription && <p className="flex items-center"><CheckCheck className="w-4 h-4 mr-2 text-green-600"/> Included in your subscription</p>}
                 </CardContent>
@@ -381,5 +425,3 @@ export default function CourseDetailPage() {
     </div>
   );
 }
-
-    
