@@ -400,14 +400,22 @@ export default function ProfilePage() {
             <WalletIcon className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">My Wallet</CardTitle>
           </div>
-          <CardDescription className="font-body">Your available balance from referrals.</CardDescription>
+          <CardDescription className="font-body">Your available balance from referrals and how to use it.</CardDescription>
         </CardHeader>
-        <CardContent className="font-body">
+        <CardContent className="font-body space-y-3">
           <p className="text-3xl font-bold">{mockWalletBalance}</p>
-          <p className="text-sm text-muted-foreground mt-1">Balance can be used for future Edutalks services (coming soon).</p>
+          <p className="text-sm text-muted-foreground">
+            Your wallet balance can be used to get discounts on future Edutalks subscriptions.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            You can also withdraw your balance to your bank account or UPI ID.
+          </p>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex-col items-start space-y-3">
             <Button variant="outline" disabled>Withdraw Funds (Coming Soon)</Button>
+            <p className="text-xs text-muted-foreground">
+                Withdrawals may be subject to a small processing fee/commission. Minimum withdrawal amount may apply.
+            </p>
         </CardFooter>
       </Card>
 
