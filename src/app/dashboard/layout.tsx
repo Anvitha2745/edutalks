@@ -5,13 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Users,
   Mic,
   BookOpen,
   CheckCircle,
   MessageSquareQuote,
   UserCircle,
-  CreditCard, // Added icon for Pricing
+  CreditCard,
+  GraduationCap, // Added icon for Courses
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -30,12 +30,13 @@ import { Separator } from "@/components/ui/separator";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/courses", label: "Courses", icon: GraduationCap }, // Added Courses link
   { href: "/dashboard/calls", label: "Voice Calls", icon: Mic },
   { href: "/dashboard/topics", label: "Daily Topics", icon: BookOpen },
   { href: "/dashboard/quizzes", label: "Quizzes", icon: CheckCircle },
   { href: "/dashboard/pronunciation", label: "Pronunciation", icon: MessageSquareQuote },
   { href: "/dashboard/profile", label: "Profile", icon: UserCircle },
-  { href: "/dashboard/pricing", label: "Pricing", icon: CreditCard }, // Added Pricing link
+  { href: "/dashboard/pricing", label: "Subscription", icon: CreditCard },
 ];
 
 export default function DashboardLayout({

@@ -2,15 +2,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Users, FileQuestion, BookCopy, ShieldCheck, UsersRound } from "lucide-react";
+import { ArrowRight, Users, FileQuestion, BookCopy, ShieldCheck, UsersRound, GraduationCap, BadgePercent, TicketPercent } from "lucide-react";
 import Image from "next/image";
 
 export default function AdminDashboardPage() {
   const quickLinks = [
     { href: "/admin/users", label: "Manage Users", icon: Users, description: "View, edit, and manage user accounts." },
+    { href: "/admin/courses", label: "Manage Courses", icon: GraduationCap, description: "Add, edit, and manage all courses." },
     { href: "/admin/quizzes", label: "Manage Quizzes", icon: FileQuestion, description: "Create, update, and delete quizzes." },
     { href: "/admin/topics", label: "Manage Topics", icon: BookCopy, description: "Oversee daily discussion topics." },
     { href: "/admin/referrals", label: "Referral System", icon: UsersRound, description: "Configure and monitor referrals." },
+    { href: "/admin/offers", label: "Manage Offers", icon: BadgePercent, description: "Create and manage course discounts." },
+    { href: "/admin/coupons", label: "Manage Coupons", icon: TicketPercent, description: "Generate and track coupon codes." },
   ];
 
   return (
@@ -54,7 +57,7 @@ export default function AdminDashboardPage() {
 
       <div>
         <h2 className="font-headline text-3xl mb-6">Management Sections</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6"> {/* Adjusted grid for potentially 4 items */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"> 
           {quickLinks.map((link) => (
             <Card key={link.href} className="hover:shadow-xl transition-shadow duration-300 flex flex-col border-border hover:border-primary/50">
               <CardHeader>
@@ -88,12 +91,12 @@ export default function AdminDashboardPage() {
               <p className="text-2xl font-bold">1,234</p>
             </div>
             <div className="p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">Active Quizzes</p>
-              <p className="text-2xl font-bold">56</p>
+              <p className="text-sm text-muted-foreground">Active Subscriptions</p>
+              <p className="text-2xl font-bold">567</p>
             </div>
-            <div className="p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">Successful Referrals</p>
-              <p className="text-2xl font-bold">78</p>
+             <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">Courses Sold</p>
+              <p className="text-2xl font-bold">890</p>
             </div>
           </div>
         </CardContent>
@@ -102,5 +105,3 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
-
-    

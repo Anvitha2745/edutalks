@@ -10,8 +10,11 @@ import {
   BookCopy,
   LogOut,
   Shield,
-  UsersRound, // For Referral System
-  Cog, // Fallback, consider Settings2 or SlidersHorizontal if more specific
+  UsersRound, 
+  Cog, 
+  GraduationCap, // For Course Management
+  BadgePercent,  // For Offer Management
+  TicketPercent, // For Coupon Management
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -33,9 +36,12 @@ import { useRouter } from "next/navigation";
 const adminNavItems = [
   { href: "/admin", label: "Admin Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "User Management", icon: Users },
+  { href: "/admin/courses", label: "Course Management", icon: GraduationCap },
   { href: "/admin/quizzes", label: "Quiz Management", icon: FileQuestion },
   { href: "/admin/topics", label: "Topic Management", icon: BookCopy },
-  { href: "/admin/referrals", label: "Referral System", icon: UsersRound }, // Changed icon
+  { href: "/admin/referrals", label: "Referral System", icon: UsersRound },
+  { href: "/admin/offers", label: "Offer Management", icon: BadgePercent },
+  { href: "/admin/coupons", label: "Coupon Management", icon: TicketPercent },
 ];
 
 export default function AdminLayout({
@@ -95,5 +101,3 @@ export default function AdminLayout({
     </SidebarProvider>
   );
 }
-
-    
