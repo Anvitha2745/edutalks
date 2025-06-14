@@ -1,8 +1,10 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,12 +15,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { UploadCloud, Save, CreditCard, ShieldCheck } from "lucide-react";
+import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
@@ -44,11 +47,22 @@ export default function ProfilePage() {
     mode: "onChange",
   });
 
+  const [avatarSrc, setAvatarSrc] = useState<string | null>("https://placehold.co/150x150.png");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const [localStorageValue, setLocalStorageValue] = useState<string>("");
+  const localStorageKey = "edutalks_profile_demo_data";
+
   // Mock subscription data
   const mockSubscription = {
-    status: "Free User", // Could be "Premium", "Trial Active"
-    // trialEndDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString(), // Example for trial
-    // nextBillingDate: "N/A",
+    status: "Free User",
   };
 
   function onSubmit(data: ProfileFormValues) {
@@ -58,6 +72,143 @@ export default function ProfilePage() {
       description: "Your profile information has been saved (mock).",
     });
   }
+
+  const handleAvatarFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarSrc(e.target?.result as string);
+        toast({ title: "Avatar Updated", description: "New avatar previewed." });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const openCamera = useCallback(async () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setVideoStream(stream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setHasCameraPermission(true);
+        setShowCamera(true);
+        toast({ title: "Camera Activated" });
+      } catch (error) {
+        console.error("Error accessing camera:", error);
+        setHasCameraPermission(false);
+        setShowCamera(false);
+        toast({
+          variant: "destructive",
+          title: "Camera Access Denied",
+          description: "Please enable camera permissions in your browser settings.",
+        });
+      }
+    } else {
+      toast({ variant: "destructive", title: "Camera Not Supported", description: "Your browser doesn't support camera access." });
+    }
+  }, [toast]);
+
+  const capturePhoto = () => {
+    if (videoRef.current && videoStream) {
+      const canvas = document.createElement("canvas");
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const context = canvas.getContext("2d");
+      if (context) {
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/png");
+        setAvatarSrc(dataUrl);
+        toast({ title: "Photo Captured", description: "Avatar updated with new photo." });
+      }
+      closeCamera();
+    }
+  };
+
+  const closeCamera = useCallback(() => {
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+    }
+    setVideoStream(null);
+    setShowCamera(false);
+    if (videoRef.current) {
+        videoRef.current.srcObject = null;
+    }
+  }, [videoStream]);
+
+  useEffect(() => {
+    // Cleanup camera stream when component unmounts or showCamera becomes false
+    return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [videoStream]);
+
+  const handleGetLocation = () => {
+    setLocation(null);
+    setLocationError(null);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          toast({ title: "Location Fetched", description: `Lat: ${position.coords.latitude.toFixed(4)}, Lon: ${position.coords.longitude.toFixed(4)}` });
+        },
+        (error) => {
+          setLocationError(error.message);
+          toast({ variant: "destructive", title: "Location Error", description: error.message });
+        }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by this browser.");
+      toast({ variant: "destructive", title: "Location Not Supported", description: "Geolocation is not supported by this browser." });
+    }
+  };
+  
+  const handleAccessContacts = () => {
+    toast({
+      title: "Contacts API (Experimental)",
+      description: "The Contact Picker API allows users to select contacts to share. Full implementation requires careful handling of permissions and browser compatibility. See console for more info.",
+    });
+    console.log("To implement contact access, use the Contact Picker API: navigator.contacts.select(['name', 'email'], {multiple: true}). This is a user-initiated action.");
+  };
+
+  const handleSaveToLocalStorage = () => {
+    const dataToSave = prompt("Enter a short note to save locally:", "My Edutalks note");
+    if (dataToSave !== null) {
+        localStorage.setItem(localStorageKey, dataToSave);
+        setLocalStorageValue(dataToSave);
+        toast({ title: "Data Saved Locally", description: "Your note has been saved in browser storage."});
+    }
+  };
+
+  const handleLoadFromLocalStorage = () => {
+    const loadedData = localStorage.getItem(localStorageKey);
+    if (loadedData) {
+        setLocalStorageValue(loadedData);
+        toast({ title: "Data Loaded Locally", description: `Loaded: "${loadedData}"`});
+    } else {
+        setLocalStorageValue("");
+        toast({ title: "No Data Found", description: "Nothing found in local storage for this key."});
+    }
+  };
+   const handleClearLocalStorage = () => {
+    localStorage.removeItem(localStorageKey);
+    setLocalStorageValue("");
+    toast({ title: "Local Data Cleared", description: "The demo data has been removed from local storage." });
+  };
+
+
+  useEffect(() => {
+    handleLoadFromLocalStorage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return (
     <div className="space-y-8">
@@ -74,15 +225,65 @@ export default function ProfilePage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="flex items-center space-x-6 mb-8">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src="https://placehold.co/150x150.png" alt="User avatar" data-ai-hint="person avatar" />
-                  <AvatarFallback>EU</AvatarFallback>
+              <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 mb-8">
+                <Avatar className="h-32 w-32 md:h-40 md:w-40 border-2 border-primary shadow-md">
+                  <AvatarImage src={avatarSrc || "https://placehold.co/150x150.png"} alt="User avatar" data-ai-hint="person avatar" />
+                  <AvatarFallback className="text-3xl">
+                    {defaultValues.fullName ? defaultValues.fullName.substring(0, 2).toUpperCase() : "EU"}
+                  </AvatarFallback>
                 </Avatar>
-                <Button variant="outline" type="button">
-                  <UploadCloud className="mr-2 h-4 w-4" /> Upload New Photo
-                </Button>
+                <div className="flex flex-col space-y-3 items-center md:items-start">
+                  <Button variant="outline" type="button" onClick={() => fileInputRef.current?.click()}>
+                    <UploadCloud className="mr-2 h-4 w-4" /> Upload from Gallery
+                  </Button>
+                  <Input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleAvatarFileChange} 
+                    className="hidden" 
+                    accept="image/*" 
+                  />
+                  <Button variant="outline" type="button" onClick={openCamera}>
+                    <Camera className="mr-2 h-4 w-4" /> Take Photo with Camera
+                  </Button>
+                </div>
               </div>
+
+              {showCamera && (
+                <Card className="mt-4 border-primary shadow-md">
+                  <CardHeader>
+                    <CardTitle className="font-headline text-xl flex items-center justify-between">
+                        <span>Live Camera Feed</span>
+                        <Button variant="ghost" size="icon" onClick={closeCamera} aria-label="Close camera">
+                            <XCircle className="h-5 w-5 text-destructive"/>
+                        </Button>
+                    </CardTitle>
+                    {hasCameraPermission === false && (
+                         <Alert variant="destructive">
+                            <AlertTitle>Camera Access Denied</AlertTitle>
+                            <AlertDescription>
+                                Please allow camera access in your browser settings to use this feature.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center">
+                    <video 
+                        ref={videoRef} 
+                        className="w-full max-w-md aspect-video rounded-md bg-muted shadow-inner" 
+                        autoPlay 
+                        muted 
+                        playsInline
+                    />
+                    {videoStream && hasCameraPermission && (
+                      <Button type="button" onClick={capturePhoto} className="mt-4">
+                        <Camera className="mr-2 h-4 w-4" /> Capture Photo
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
@@ -162,6 +363,79 @@ export default function ProfilePage() {
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-3">
+            <MapPin className="w-6 h-6 text-primary"/>
+            <CardTitle className="font-headline text-2xl">Location Services</CardTitle>
+          </div>
+           <CardDescription className="font-body">Allow access to your location for personalized experiences (mock).</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 font-body">
+            <Button onClick={handleGetLocation} variant="outline">Get My Current Location</Button>
+            {location && (
+                <Alert>
+                    <MapPin className="h-4 w-4" />
+                    <AlertTitle className="font-headline">Location Acquired</AlertTitle>
+                    <AlertDescription>
+                        Latitude: {location.latitude.toFixed(6)}, Longitude: {location.longitude.toFixed(6)}
+                    </AlertDescription>
+                </Alert>
+            )}
+            {locationError && (
+                <Alert variant="destructive">
+                     <AlertTitle className="font-headline">Location Error</AlertTitle>
+                    <AlertDescription>{locationError}</AlertDescription>
+                </Alert>
+            )}
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <Users className="w-6 h-6 text-primary"/>
+            <CardTitle className="font-headline text-2xl">Contacts Access (Experimental)</CardTitle>
+          </div>
+           <CardDescription className="font-body">Optionally share contacts for easier connection (uses Contact Picker API).</CardDescription>
+        </CardHeader>
+        <CardContent className="font-body">
+            <Button onClick={handleAccessContacts} variant="outline">Access Contacts</Button>
+            <p className="text-xs text-muted-foreground mt-2">
+                This feature would use the Contact Picker API, allowing you to select contacts to share with the app. Browser support may vary.
+            </p>
+        </CardContent>
+      </Card>
+      
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <Database className="w-6 h-6 text-primary"/>
+            <CardTitle className="font-headline text-2xl">Local App Data Example</CardTitle>
+          </div>
+           <CardDescription className="font-body">This demonstrates storing and retrieving app-specific data in your browser&apos;s local storage.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 font-body">
+            <div className="flex gap-2">
+                 <Button onClick={handleSaveToLocalStorage} variant="outline">Save Note Locally</Button>
+                 <Button onClick={handleLoadFromLocalStorage} variant="outline">Load Note</Button>
+                 <Button onClick={handleClearLocalStorage} variant="ghost" size="icon" aria-label="Clear local note">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                 </Button>
+            </div>
+            {localStorageValue && (
+                <Alert variant="default" className="bg-primary/10 border-primary/30">
+                    <AlertTitle className="font-headline">Current Local Note:</AlertTitle>
+                    <AlertDescription className="text-primary-foreground font-semibold">{localStorageValue}</AlertDescription>
+                </Alert>
+            )}
+            {!localStorageValue && (
+                 <p className="text-sm text-muted-foreground">No local note saved yet, or it has been cleared.</p>
+            )}
+        </CardContent>
+      </Card>
+
+
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-3">
             <CreditCard className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">Subscription Status</CardTitle>
           </div>
@@ -169,13 +443,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-3 font-body">
             <p>Current Plan: <span className="font-semibold">{mockSubscription.status}</span></p>
-            {mockSubscription.status === "Trial Active" && mockSubscription.trialEndDate && (
-                <p>Trial Ends: <span className="font-semibold">{mockSubscription.trialEndDate}</span></p>
-            )}
-            {mockSubscription.status === "Premium" && mockSubscription.nextBillingDate &&(
-                 <p>Next Billing Date: <span className="font-semibold">{mockSubscription.nextBillingDate}</span></p>
-            )}
-             {mockSubscription.status !== "Premium" && (
+            {mockSubscription.status !== "Premium" && (
                  <Button asChild>
                     <Link href="/dashboard/pricing">
                         <ShieldCheck className="mr-2 h-4 w-4" /> Upgrade to Premium
@@ -193,9 +461,12 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Button variant="outline" className="font-body">Change Password</Button>
-          <Button variant="destructive" className="font-body">Delete Account (Disabled)</Button>
+          <Button variant="destructive" className="font-body" disabled>Delete Account (Disabled)</Button>
         </CardContent>
       </Card>
     </div>
   );
 }
+
+
+      
