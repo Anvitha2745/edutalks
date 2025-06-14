@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2, Gift, Wallet as WalletIcon, Copy, Info } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label"; // Ensure Label is imported
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
@@ -32,6 +33,7 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+// Mock data for initial load - in a real app, fetch from Firebase
 const defaultValues: Partial<ProfileFormValues> = {
   fullName: "Edutalks User",
   email: "user@edutalks.com",
@@ -60,10 +62,9 @@ export default function ProfilePage() {
   const [localStorageValue, setLocalStorageValue] = useState<string>("");
   const localStorageKey = "edutalks_profile_demo_data";
 
-  // Mock subscription data - assuming user is subscribed if they reach this page.
+  // Mock subscription data - assuming user is subscribed.
   const mockSubscription = {
-    status: "Premium User (Yearly)", 
-    // In a real app, you might fetch renewalDate from Firebase
+    status: "Premium User (Yearly)",
     renewalDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toLocaleDateString(),
   };
 
@@ -71,14 +72,16 @@ export default function ProfilePage() {
   const [walletBalance, setWalletBalance] = useState<string>("₹0.00"); 
 
   useEffect(() => {
+    // Simulate fetching user-specific data from Firebase
     setTimeout(() => {
-      setUserReferralCode("EDUUSER123"); 
-      setWalletBalance("₹125.50"); 
+      setUserReferralCode("EDUUSER123"); // Mock: This would be fetched from user's Firebase doc
+      setWalletBalance("₹125.50"); // Mock: This would be fetched from user's Firebase doc
     }, 1000);
   }, []);
 
 
   function onSubmit(data: ProfileFormValues) {
+    // In a real app, update user data in Firebase Firestore
     console.log("Profile updated (mock):", data);
     toast({
       title: "Profile Updated",
@@ -99,7 +102,8 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onload = (e) => {
         setAvatarSrc(e.target?.result as string);
-        toast({ title: "Avatar Updated", description: "New avatar previewed. Save changes to persist." });
+        // In a real app, you'd upload this to Firebase Storage and update user's profile URL in Firestore
+        toast({ title: "Avatar Updated", description: "New avatar previewed. Save changes to persist (mock)." });
       };
       reader.readAsDataURL(file);
     }
@@ -141,7 +145,8 @@ export default function ProfilePage() {
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/png");
         setAvatarSrc(dataUrl);
-        toast({ title: "Photo Captured", description: "Avatar updated with new photo. Save changes to persist." });
+        // In a real app, upload this to Firebase Storage
+        toast({ title: "Photo Captured", description: "Avatar updated with new photo. Save changes to persist (mock)." });
       }
       closeCamera();
     }
@@ -176,6 +181,7 @@ export default function ProfilePage() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
+          // In a real app, you might save this to user's profile in Firebase if needed
           toast({ title: "Location Fetched", description: `Lat: ${position.coords.latitude.toFixed(4)}, Lon: ${position.coords.longitude.toFixed(4)}` });
         },
         (error) => {
@@ -198,7 +204,7 @@ export default function ProfilePage() {
   };
 
   const handleSaveToLocalStorage = () => {
-    const dataToSave = prompt("Enter a short note to save locally:", "My Edutalks note");
+    const dataToSave = prompt("Enter a short note to save locally:", "My LinguaVerse note");
     if (dataToSave !== null) {
         localStorage.setItem(localStorageKey, dataToSave);
         setLocalStorageValue(dataToSave);
@@ -233,7 +239,7 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-headline text-4xl">Your Profile</h1>
-        <p className="text-muted-foreground font-body">Manage your account settings and personalize your Edutalks experience.</p>
+        <p className="text-muted-foreground font-body">Manage your account settings and personalize your LinguaVerse experience.</p>
       </div>
 
       <Card className="shadow-lg">
@@ -248,7 +254,7 @@ export default function ProfilePage() {
                 <Avatar className="h-32 w-32 md:h-40 md:w-40 border-2 border-primary shadow-md">
                   <AvatarImage src={avatarSrc || "https://placehold.co/150x150.png"} alt="User avatar" data-ai-hint="person avatar"/>
                   <AvatarFallback className="text-3xl">
-                    {defaultValues.fullName ? defaultValues.fullName.substring(0, 2).toUpperCase() : "EU"}
+                    {defaultValues.fullName ? defaultValues.fullName.substring(0, 2).toUpperCase() : "LV"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-3 items-center md:items-start">
@@ -359,7 +365,7 @@ export default function ProfilePage() {
                     <FormLabel className="font-body">Learning Goals</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="What do you want to achieve with Edutalks?"
+                        placeholder="What do you want to achieve with LinguaVerse?"
                         className="resize-none font-body"
                         {...field}
                       />
@@ -389,7 +395,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-4 font-body">
           <div>
-            <FormLabel>Your Unique Referral Code</FormLabel>
+            <Label>Your Unique Referral Code</Label>
             <div className="flex items-center gap-2 mt-1">
               <Input readOnly value={userReferralCode} className="font-mono bg-muted/50" />
               <Button variant="outline" size="icon" onClick={handleCopyReferralCode} aria-label="Copy referral code" disabled={userReferralCode === "LOADING..."}>
@@ -418,7 +424,7 @@ export default function ProfilePage() {
         <CardContent className="font-body space-y-3">
           <p className="text-3xl font-bold">{walletBalance}</p>
            <p className="text-sm text-muted-foreground">
-            Your wallet balance can be used to get discounts on future Edutalks subscriptions.
+            Your wallet balance can be used to get discounts on future LinguaVerse subscriptions.
             This balance would be fetched from Firebase.
           </p>
           <p className="text-sm text-muted-foreground">
@@ -519,11 +525,12 @@ export default function ProfilePage() {
             <CreditCard className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">Subscription Status</CardTitle>
           </div>
-          <CardDescription className="font-body">Manage your Edutalks subscription.</CardDescription>
+          <CardDescription className="font-body">Manage your LinguaVerse subscription.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 font-body">
             <p>Current Plan: <span className="font-semibold">{mockSubscription.status}</span></p>
             <p>Renews on: <span className="font-semibold">{mockSubscription.renewalDate}</span></p>
+            {/* In a real app, integrate with your payment provider (e.g., Stripe, Razorpay) via Firebase */}
             <Button variant="outline" disabled>Manage Subscription (Mock)</Button>
         </CardContent>
       </Card>
@@ -535,10 +542,13 @@ export default function ProfilePage() {
           <CardDescription className="font-body">Manage your password and account security settings.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button variant="outline" className="font-body">Change Password</Button>
+          {/* Implement password change via Firebase Authentication methods */}
+          <Button variant="outline" className="font-body" disabled>Change Password (Mock)</Button>
+          {/* Implement account deletion via Firebase Authentication and Firestore data cleanup */}
           <Button variant="destructive" className="font-body" disabled>Delete Account (Disabled)</Button>
         </CardContent>
       </Card>
     </div>
   );
 }
+
