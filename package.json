@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npx next dev --turbopack",
-    "genkit:dev": "echo 'Genkit scripts disabled for build diagnostics'",
-    "genkit:watch": "echo 'Genkit scripts disabled for build diagnostics'",
+    "dev": "next dev",
     "build": "next build",
     "start": "npx next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20.0.0 <21.0.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
