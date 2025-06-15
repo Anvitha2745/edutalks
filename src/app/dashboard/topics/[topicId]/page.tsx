@@ -7,13 +7,6 @@ import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Define an interface for the page's props
-interface TopicDetailPageProps {
-  params: { topicId: string };
-  // searchParams could be added here if needed:
-  // searchParams?: { [key: string]: string | string[] | undefined };
-}
-
 // Mock data fetching - simplified for diagnostics
 const getTopicDetails = (topicId: string) => {
   // Simulate API call - return a simple, hardcoded object
@@ -46,7 +39,7 @@ const mockComments = [
 ];
 
 
-export default async function TopicDetailPage({ params }: TopicDetailPageProps) {
+export default async function TopicDetailPage({ params }: { params: { topicId: string } }) {
   const topic = getTopicDetails(params.topicId); // Now synchronous
 
   if (!topic) {
@@ -160,4 +153,3 @@ export default async function TopicDetailPage({ params }: TopicDetailPageProps) 
 // export async function generateStaticParams() {
 //   return [{ topicId: '1' }];
 // }
-
