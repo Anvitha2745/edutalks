@@ -1,14 +1,18 @@
 
-"use client"; // Required if we use hooks like useParams, but for now, simple props.
-
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-// Correctly typing props for a Next.js App Router dynamic page
-// The component receives an object, and we destructure `params` from it.
-// `params` itself is an object where keys match your dynamic route segments.
-export default function TopicDetailPage({ params }: { params: { topicId: string } }) {
+// Define the props type to align with common Next.js PageProps structure
+interface TopicDetailPageProps {
+  params: { topicId: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+// Making it async, as many page components in App Router are, especially if they might fetch data.
+// Even if this simplified version doesn't, the build process might expect it for dynamic routes.
+export default async function TopicDetailPage({ params }: TopicDetailPageProps) {
+  // The check for params.topicId is fine.
   if (!params.topicId) {
     return (
       <div className="text-center py-10">
@@ -28,7 +32,7 @@ export default function TopicDetailPage({ params }: { params: { topicId: string 
       </Button>
       <h1 className="font-headline text-4xl">Topic Details</h1>
       <p className="font-body">Topic ID: {params.topicId}</p>
-      <p className="font-body">This is a simplified page for build diagnostics.</p>
+      <p className="font-body">This is a simplified page for build diagnostics. It is async and uses a detailed Props interface.</p>
     </div>
   );
 }
