@@ -1,19 +1,6 @@
 
 import type {NextConfig} from 'next';
 
-// Define the PWA plugin and its configuration
-const pwaConfig = {
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
-  // fallbacks: {
-  //   document: '/offline', // if you want to fallback to a custom page
-  // }
-};
-
-const withPWA = require("@ducanh2912/next-pwa").default(pwaConfig);
-
 const nextAppConfig: NextConfig = {
   /* config options here */
   typescript: {
@@ -38,10 +25,8 @@ const nextAppConfig: NextConfig = {
   ],
 };
 
-// Conditionally apply the PWA wrapper.
-// In development (when NODE_ENV is 'development'), Turbopack will use nextAppConfig directly.
-// In production, withPWA(nextAppConfig) will be used.
-// const finalConfig = process.env.NODE_ENV === 'production' ? withPWA(nextAppConfig) : nextAppConfig;
-const finalConfig = nextAppConfig; // PWA remains disabled for build diagnosis
+// PWA related code has been fully removed for build diagnosis.
+// If PWA functionality is needed later, it will need to be re-introduced carefully.
+const finalConfig = nextAppConfig;
 
 export default finalConfig;
