@@ -3,15 +3,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-// Define the props type to align with common Next.js PageProps structure
-interface TopicDetailPageProps {
-  params: { topicId: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
-// Making it async, as many page components in App Router are, especially if they might fetch data.
-// Even if this simplified version doesn't, the build process might expect it for dynamic routes.
-export default async function TopicDetailPage({ params }: TopicDetailPageProps) {
+// Define the props type more directly for a dynamic route segment page.
+// The page component receives an object with a 'params' property.
+export default async function TopicDetailPage({ params }: { params: { topicId: string } }) {
   // The check for params.topicId is fine.
   if (!params.topicId) {
     return (
@@ -27,12 +21,12 @@ export default async function TopicDetailPage({ params }: TopicDetailPageProps) 
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <Button variant="outline" asChild className="mb-4">
+      <Button variant="outline" asChild className="mb-4 font-body">
         <Link href="/dashboard/topics"><ArrowLeft className="mr-2 h-4 w-4"/> Back to All Topics</Link>
       </Button>
       <h1 className="font-headline text-4xl">Topic Details</h1>
       <p className="font-body">Topic ID: {params.topicId}</p>
-      <p className="font-body">This is a simplified page for build diagnostics. It is async and uses a detailed Props interface.</p>
+      <p className="font-body">This is a simplified page for build diagnostics.</p>
     </div>
   );
 }
