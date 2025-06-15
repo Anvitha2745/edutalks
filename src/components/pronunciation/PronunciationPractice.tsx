@@ -5,8 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-// import { getPronunciationFeedback, PronunciationFeedbackInput } from "@/ai/flows/pronunciation-feedback";
-// Removed: import type { PronunciationFeedbackOutput } from "@/ai/flows/pronunciation-feedback"; 
+import { getPronunciationFeedback, type PronunciationFeedbackInput, type PronunciationFeedbackOutput } from "@/ai/flows/pronunciation-feedback";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,12 +13,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, MicVocal, CheckCircle, Info, Speaker } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-
-// Define PronunciationFeedbackOutput locally for mock data
-interface PronunciationFeedbackOutput {
-  feedback: string;
-  score: number;
-}
 
 const formSchema = z.object({
   text: z.string().min(5, { message: "Please enter at least 5 characters." }).max(500, {message: "Text is too long (max 500 characters)."}),
@@ -61,19 +54,21 @@ export function PronunciationPractice() {
     setFeedbackResult(null);
     setError(null);
     try {
-      // AI Call is commented out for diagnostic purposes
-      // const result = await getPronunciationFeedback(values as PronunciationFeedbackInput);
-      
-      // Simulate successful feedback
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
-      const mockResult: PronunciationFeedbackOutput = {
-        feedback: "This is mock feedback. Your pronunciation seems good overall. Consider focusing on the 'th' sound.",
-        score: 85,
-      };
-      setFeedbackResult(mockResult);
+      const result = await getPronunciationFeedback(values as PronunciationFeedbackInput);
+      setFeedbackResult(result);
     } catch (err) {
-      console.error("Error getting pronunciation feedback (mock):", err);
-      setError("Failed to get feedback. Please try again (mock error).");
+      console.error("Error getting pronunciation feedback:", err);
+      let errorMessage = "Failed to get feedback. Please try again.";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      // Check for specific error messages related to API keys for Genkit
+      if (typeof err === 'string' && err.includes("API key not valid")) {
+        errorMessage = "Failed to get feedback: The API key is not valid. Please check your server configuration.";
+      } else if (err instanceof Error && (err.message.includes("API key") || err.message.includes("authentication"))) {
+         errorMessage = "Failed to get feedback due to an authentication issue. Please ensure your API key is correctly configured on the server.";
+      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
