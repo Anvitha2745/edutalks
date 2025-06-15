@@ -19,7 +19,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Database, Video, XCircle, Trash2, Gift, Wallet as WalletIcon, Copy, Info } from "lucide-react";
+import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Video, XCircle, Gift, Wallet as WalletIcon, Copy, Info } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
@@ -59,29 +59,21 @@ export default function ProfilePage() {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
 
-  const [localStorageValue, setLocalStorageValue] = useState<string>("");
-  const localStorageKey = "edutalks_profile_demo_data";
-
   // Mock subscription data - assuming user is subscribed.
   const mockSubscription = {
     status: "Premium User (Yearly)",
     renewalDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toLocaleDateString(),
   };
 
-  const [userReferralCode, setUserReferralCode] = useState<string>("LOADING..."); 
-  // Wallet balance would be fetched from Firebase in a real app. Initialized as a placeholder.
-  const [walletBalance, setWalletBalance] = useState<string>("₹0.00 (Fetching...)"); 
+  const [userReferralCode, setUserReferralCode] = useState<string>("LOADING...");
+  const [walletBalance, setWalletBalance] = useState<string>("₹0.00"); 
 
   useEffect(() => {
     // Simulate fetching user-specific referral code from Firebase
     setTimeout(() => {
-      setUserReferralCode("EDUUSER123"); // Mock: This would be fetched from user's Firebase doc
+      setUserReferralCode("EDUUSER123"); 
     }, 1000);
-    // In a real app, wallet balance would be fetched here from Firebase
-    // For now, we'll just update the placeholder text after a delay
-    setTimeout(() => {
-        setWalletBalance("₹0.00"); // Update to a default or fetched value
-    }, 1500);
+    // Wallet balance would be fetched from Firebase in a real app.
   }, []);
 
 
@@ -186,7 +178,6 @@ export default function ProfilePage() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
-          // In a real app, you might save this to user's profile in Firebase if needed
           toast({ title: "Location Fetched", description: `Lat: ${position.coords.latitude.toFixed(4)}, Lon: ${position.coords.longitude.toFixed(4)}` });
         },
         (error) => {
@@ -202,7 +193,6 @@ export default function ProfilePage() {
     }
   }, [toast]);
   
-  // Attempt to get location when the component mounts
   useEffect(() => {
     handleGetLocation();
   }, [handleGetLocation]);
@@ -210,41 +200,11 @@ export default function ProfilePage() {
 
   const handleAccessContacts = () => {
     toast({
-      title: "Contacts API (Experimental)",
+      title: "Contacts API (User-Initiated)",
       description: "The Contact Picker API allows users to select contacts to share. This requires user interaction due to privacy reasons. Full implementation requires careful handling of permissions and browser compatibility. See console for more info.",
     });
     console.log("To implement contact access, use the Contact Picker API: navigator.contacts.select(['name', 'email'], {multiple: true}). This is a user-initiated action and requires HTTPS.");
   };
-
-  const handleSaveToLocalStorage = () => {
-    const dataToSave = prompt("Enter a short note to save locally:", "My LinguaVerse note");
-    if (dataToSave !== null) {
-        localStorage.setItem(localStorageKey, dataToSave);
-        setLocalStorageValue(dataToSave);
-        toast({ title: "Data Saved Locally", description: "Your note has been saved in browser storage."});
-    }
-  };
-
-  const handleLoadFromLocalStorage = useCallback(() => {
-    const loadedData = localStorage.getItem(localStorageKey);
-    if (loadedData) {
-        setLocalStorageValue(loadedData);
-    } else {
-        setLocalStorageValue("");
-    }
-  }, [localStorageKey]); // Add localStorageKey to dependency array
-
-   const handleClearLocalStorage = () => {
-    localStorage.removeItem(localStorageKey);
-    setLocalStorageValue("");
-    toast({ title: "Local Data Cleared", description: "The demo data has been removed from local storage." });
-  };
-
-
-  useEffect(() => {
-    handleLoadFromLocalStorage();
-  }, [handleLoadFromLocalStorage]);
-
 
   return (
     <div className="space-y-8">
@@ -430,12 +390,12 @@ export default function ProfilePage() {
             <WalletIcon className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">My Wallet</CardTitle>
           </div>
-          <CardDescription className="font-body">Your available balance from referrals and how to use it.</CardDescription>
+          <CardDescription className="font-body">Your available balance from referrals and how to use it. This balance would be fetched from Firebase.</CardDescription>
         </CardHeader>
         <CardContent className="font-body space-y-3">
           <p className="text-3xl font-bold">{walletBalance}</p>
            <p className="text-sm text-muted-foreground">
-            Your wallet balance can be used to get discounts on future LinguaVerse subscriptions. This balance would be fetched from Firebase.
+            Your wallet balance can be used to get discounts on future LinguaVerse subscriptions.
           </p>
           <p className="text-sm text-muted-foreground">
             You can also withdraw your balance to your bank account or UPI ID.
@@ -462,7 +422,7 @@ export default function ProfilePage() {
             <MapPin className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">Location Services</CardTitle>
           </div>
-           <CardDescription className="font-body">The app will attempt to access your location to personalize experiences. You may be prompted for permission.</CardDescription>
+           <CardDescription className="font-body">The app will attempt to access your location to personalize experiences. You will be prompted for permission upon page load if not already granted/denied.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 font-body">
             <Button onClick={handleGetLocation} variant="outline">Refresh My Current Location</Button>
@@ -490,7 +450,7 @@ export default function ProfilePage() {
             <Users className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">Contacts Access (User-Initiated)</CardTitle>
           </div>
-           <CardDescription className="font-body">To connect with friends easily, you can choose to share contacts from your device. This is a user-initiated action for privacy. The app cannot access contacts automatically.</CardDescription>
+           <CardDescription className="font-body">To connect with friends easily, you can choose to share contacts from your device. For privacy and security, this action must be initiated by you by clicking the button below; it cannot be enabled automatically.</CardDescription>
         </CardHeader>
         <CardContent className="font-body">
             <Button onClick={handleAccessContacts} variant="outline">Share Contacts (via Contact Picker)</Button>
@@ -500,35 +460,6 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
       
-      <Card className="shadow-lg">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <Database className="w-6 h-6 text-primary"/>
-            <CardTitle className="font-headline text-2xl">Local App Data Example</CardTitle>
-          </div>
-           <CardDescription className="font-body">This demonstrates storing and retrieving app-specific data in your browser&apos;s local storage.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 font-body">
-            <div className="flex gap-2">
-                 <Button onClick={handleSaveToLocalStorage} variant="outline">Save Note Locally</Button>
-                 <Button onClick={handleLoadFromLocalStorage} variant="outline">Load Note</Button>
-                 <Button onClick={handleClearLocalStorage} variant="ghost" size="icon" aria-label="Clear local note">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                 </Button>
-            </div>
-            {localStorageValue && (
-                <Alert variant="default" className="bg-primary/10 border-primary/30">
-                    <AlertTitle className="font-headline">Current Local Note:</AlertTitle>
-                    <AlertDescription className="text-primary-foreground font-semibold">{localStorageValue}</AlertDescription>
-                </Alert>
-            )}
-            {!localStorageValue && (
-                 <p className="text-sm text-muted-foreground">No local note saved yet, or it has been cleared.</p>
-            )}
-        </CardContent>
-      </Card>
-
-
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -561,4 +492,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
