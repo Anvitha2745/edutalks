@@ -14,13 +14,12 @@ interface TopicDetailPageProps {
   // searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-// Mock data fetching - replace with actual data fetching
-const getTopicDetails = async (topicId: string) => {
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 500));
+// Mock data fetching - simplified for diagnostics
+const getTopicDetails = (topicId: string) => {
+  // Simulate API call - return a simple, hardcoded object
   const mockTopic = {
     id: topicId,
-    title: "The Future of Remote Work (Detailed)",
+    title: "The Future of Remote Work (Detailed - Diagnostic)",
     description: "Explore the pros and cons of remote work and how it might evolve in the coming years. This topic delves deeper into the societal shifts, technological advancements, and personal well-being aspects related to remote work. What are your personal experiences or preferences? Consider the impact on urban planning, employee engagement, and global talent acquisition.",
     category: "Work & Career",
     date: "October 26, 2023",
@@ -37,7 +36,7 @@ const getTopicDetails = async (topicId: string) => {
     ],
     relatedVocabulary: ["Telecommuting", "Hybrid model", "Digital nomad", "Ergonomics", "Asynchronous communication", "Virtual collaboration"],
   };
-  if (topicId === "1") return mockTopic; // Only return data for ID 1 for this mock
+  if (topicId === "1" || topicId) return mockTopic; // Always return for any topicId for now
   return null;
 };
 
@@ -48,7 +47,7 @@ const mockComments = [
 
 
 export default async function TopicDetailPage({ params }: TopicDetailPageProps) {
-  const topic = await getTopicDetails(params.topicId);
+  const topic = getTopicDetails(params.topicId); // Now synchronous
 
   if (!topic) {
     return (
@@ -158,7 +157,7 @@ export default async function TopicDetailPage({ params }: TopicDetailPageProps) 
 // This function is needed for Next.js to know which paths to pre-render if you are using SSG.
 // For SSR or ISR, it might not be strictly necessary for basic functionality but good for optimization.
 // For this mock app, we'll assume we might want to statically generate page for topicId=1
-export async function generateStaticParams() {
-  return [{ topicId: '1' }];
-}
+// export async function generateStaticParams() {
+//   return [{ topicId: '1' }];
+// }
 
