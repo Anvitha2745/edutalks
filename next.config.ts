@@ -41,7 +41,7 @@ const nextAppConfig: NextConfig = {
 // Conditionally apply the PWA wrapper.
 // In development (when NODE_ENV is 'development'), Turbopack will use nextAppConfig directly.
 // In production, withPWA(nextAppConfig) will be used.
-const finalConfig = process.env.NODE_ENV === 'production' ? withPWA(nextAppConfig) : nextAppConfig;
+// const finalConfig = process.env.NODE_ENV === 'production' ? withPWA(nextAppConfig) : nextAppConfig;
+const finalConfig = nextAppConfig; // Temporarily disable PWA for build diagnosis
 
 export default finalConfig;
-

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, PlusCircle, Search, Edit, Trash2, TicketPercent, Copy, Percent, IndianRupee } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Search, Edit, Trash2, TicketPercent, Copy, Percent, IndianRupee, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 
@@ -157,7 +157,3 @@ export default function CouponManagementPage() {
     </div>
   );
 }
-
-// Re-export XCircle and CheckCircle if needed, or import directly in components.
-// For lucide-react, direct import is usually fine.
-import { CheckCircle, XCircle } from "lucide-react"; 
