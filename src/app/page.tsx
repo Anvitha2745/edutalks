@@ -59,7 +59,7 @@ export default function HomePage() {
               <MessageCircleHeart className="w-12 h-12 text-primary" />
             </div>
             <h1 className="mb-6 font-headline text-5xl md:text-7xl font-bold tracking-tight">
-              Welcome to <span className="text-primary">LinguaVerse</span>
+              Welcome to <span className="text-primary">Edutalks</span>
             </h1>
             <p className="mb-10 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto font-body">
               Unlock your English potential with interactive voice calls, daily topics, engaging quizzes, and AI-powered pronunciation feedback.
@@ -70,7 +70,7 @@ export default function HomePage() {
             <div className="mt-16">
               <Image
                 src="https://placehold.co/1200x600.png"
-                alt="LinguaVerse platform showcase"
+                alt="Edutalks platform showcase"
                 width={1200}
                 height={600}
                 className="rounded-lg shadow-2xl mx-auto"
@@ -88,7 +88,7 @@ export default function HomePage() {
               Everything You Need to Succeed
             </h2>
             <p className="mb-12 text-center text-muted-foreground font-body max-w-xl mx-auto">
-              LinguaVerse offers a comprehensive suite of tools to help you master English communication through our yearly subscription.
+              Edutalks offers a comprehensive suite of tools to help you master English communication through our yearly subscription.
             </p>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {features.map((feature) => (
@@ -115,10 +115,10 @@ export default function HomePage() {
               Ready to Start Your Journey?
             </h2>
             <p className="mb-8 text-muted-foreground font-body max-w-lg mx-auto">
-              Join thousands of learners and take your English skills to the next level with LinguaVerse.
+              Join thousands of learners and take your English skills to the next level with Edutalks.
             </p>
             <Button size="lg" asChild className="shadow-lg hover:shadow-primary/50 transition-shadow">
-              <Link href="/dashboard/pricing">Join LinguaVerse Premium</Link>
+              <Link href="/dashboard/pricing">Join Edutalks</Link>
             </Button>
           </div>
         </section>
@@ -126,7 +126,7 @@ export default function HomePage() {
 
       <footer className="py-8 border-t">
         <div className="container text-center text-muted-foreground font-body space-y-2">
-          <p>&copy; {new Date().getFullYear()} LinguaVerse. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Edutalks. All rights reserved.</p>
           <div className="space-x-4 text-xs">
             <Link href="/auth/admin/login" className="hover:text-primary hover:underline">
               <Shield className="inline-block mr-1 h-3 w-3" /> Admin Login
@@ -140,3 +140,4 @@ export default function HomePage() {
     </div>
   );
 }
+

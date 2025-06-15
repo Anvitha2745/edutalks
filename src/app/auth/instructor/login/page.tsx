@@ -35,7 +35,7 @@ export default function InstructorLoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "instructor@linguaverse.com", // Default for easy testing
+      email: "instructor@edutalks.com", // Default for easy testing
       password: "password", // Default for easy testing
     },
   });
@@ -43,7 +43,7 @@ export default function InstructorLoginPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Placeholder for instructor login logic
     console.log("Instructor login attempt:", values);
-    if (values.email === "instructor@linguaverse.com" && values.password === "password") {
+    if (values.email === "instructor@edutalks.com" && values.password === "password") {
       toast({
         title: "Instructor Login Successful (Mock)",
         description: "Redirecting to instructor dashboard.",
@@ -136,9 +136,10 @@ export default function InstructorLoginPage() {
           </Form>
         </CardContent>
          <CardFooter className="text-center text-xs text-muted-foreground pt-4">
-            <p>Access for registered LinguaVerse instructors only.</p>
+            <p>Access for registered Edutalks instructors only.</p>
         </CardFooter>
       </Card>
     </div>
   );
 }
+

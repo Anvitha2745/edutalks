@@ -79,7 +79,7 @@ export default function InstructorLayout({
           <Button variant="outline" onClick={handleInstructorLogout} className="w-full font-body">
             <LogOut className="mr-2 h-4 w-4" /> Instructor Logout
           </Button>
-          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} LinguaVerse Instructor</p>
+          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} Edutalks Instructor</p>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
@@ -91,3 +91,4 @@ export default function InstructorLayout({
     </SidebarProvider>
   );
 }
+

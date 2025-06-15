@@ -11,7 +11,7 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
+  FormLabel as ShadcnFormLabel, // Renamed to avoid conflict
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { UploadCloud, Save, CreditCard, ShieldCheck, Camera, MapPin, Users, Video, XCircle, Gift, Wallet as WalletIcon, Copy, Info } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label"; // Standard Label for non-form elements
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
@@ -75,7 +75,6 @@ export default function ProfilePage() {
     }, 1000);
     // Wallet balance would be fetched from Firebase in a real app.
   }, []);
-
 
   function onSubmit(data: ProfileFormValues) {
     // In a real app, update user data in Firebase Firestore
@@ -210,7 +209,7 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-headline text-4xl">Your Profile</h1>
-        <p className="text-muted-foreground font-body">Manage your account settings and personalize your LinguaVerse experience.</p>
+        <p className="text-muted-foreground font-body">Manage your account settings and personalize your Edutalks experience.</p>
       </div>
 
       <Card className="shadow-lg">
@@ -225,7 +224,7 @@ export default function ProfilePage() {
                 <Avatar className="h-32 w-32 md:h-40 md:w-40 border-2 border-primary shadow-md">
                   <AvatarImage src={avatarSrc || "https://placehold.co/150x150.png"} alt="User avatar" data-ai-hint="person avatar"/>
                   <AvatarFallback className="text-3xl">
-                    {defaultValues.fullName ? defaultValues.fullName.substring(0, 2).toUpperCase() : "LV"}
+                    {defaultValues.fullName ? defaultValues.fullName.substring(0, 2).toUpperCase() : "ET"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-3 items-center md:items-start">
@@ -287,7 +286,7 @@ export default function ProfilePage() {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-body">Full Name</FormLabel>
+                      <ShadcnFormLabel className="font-body">Full Name</ShadcnFormLabel>
                       <FormControl>
                         <Input placeholder="Your full name" {...field} className="font-body" />
                       </FormControl>
@@ -300,7 +299,7 @@ export default function ProfilePage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-body">Email Address</FormLabel>
+                      <ShadcnFormLabel className="font-body">Email Address</ShadcnFormLabel>
                       <FormControl>
                         <Input type="email" placeholder="Your email address" {...field} className="font-body" />
                       </FormControl>
@@ -315,7 +314,7 @@ export default function ProfilePage() {
                 name="bio"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-body">Short Bio</FormLabel>
+                    <ShadcnFormLabel className="font-body">Short Bio</ShadcnFormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Tell us a little bit about yourself"
@@ -333,10 +332,10 @@ export default function ProfilePage() {
                 name="learningGoals"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-body">Learning Goals</FormLabel>
+                    <ShadcnFormLabel className="font-body">Learning Goals</ShadcnFormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="What do you want to achieve with LinguaVerse?"
+                        placeholder="What do you want to achieve with Edutalks?"
                         className="resize-none font-body"
                         {...field}
                       />
@@ -390,12 +389,12 @@ export default function ProfilePage() {
             <WalletIcon className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">My Wallet</CardTitle>
           </div>
-          <CardDescription className="font-body">Your available balance from referrals and how to use it. This balance would be fetched from Firebase.</CardDescription>
+          <CardDescription className="font-body">Your available balance from referrals. This balance would be fetched from Firebase.</CardDescription>
         </CardHeader>
         <CardContent className="font-body space-y-3">
           <p className="text-3xl font-bold">{walletBalance}</p>
            <p className="text-sm text-muted-foreground">
-            Your wallet balance can be used to get discounts on future LinguaVerse subscriptions.
+            Your wallet balance can be used to get discounts on future Edutalks subscriptions.
           </p>
           <p className="text-sm text-muted-foreground">
             You can also withdraw your balance to your bank account or UPI ID.
@@ -466,7 +465,7 @@ export default function ProfilePage() {
             <CreditCard className="w-6 h-6 text-primary"/>
             <CardTitle className="font-headline text-2xl">Subscription Status</CardTitle>
           </div>
-          <CardDescription className="font-body">Manage your LinguaVerse subscription.</CardDescription>
+          <CardDescription className="font-body">Manage your Edutalks subscription.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 font-body">
             <p>Current Plan: <span className="font-semibold">{mockSubscription.status}</span></p>
@@ -492,3 +491,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

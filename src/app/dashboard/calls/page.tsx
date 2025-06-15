@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -51,7 +52,7 @@ export default function VoiceCallsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-headline text-4xl">Voice Calls</h1>
-        <p className="text-muted-foreground font-body">Connect with other LinguaVerse users and practice your English speaking skills.</p>
+        <p className="text-muted-foreground font-body">Connect with other Edutalks users and practice your English speaking skills.</p>
       </div>
 
       <Card className="shadow-lg">
@@ -121,3 +122,4 @@ export default function VoiceCallsPage() {
     </div>
   );
 }
+

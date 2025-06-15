@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MessageSquare, ThumbsUp, Share2 } from "lucide-react";
@@ -17,8 +18,8 @@ const getTopicDetails = async (topicId: string) => {
     category: "Work & Career",
     date: "October 26, 2023",
     imageUrl: "https://placehold.co/800x400.png?text=Remote+Work+Deep+Dive",
-    author: "LinguaVerse Team",
-    authorAvatar: "https://placehold.co/100x100.png?text=LV",
+    author: "Edutalks Team",
+    authorAvatar: "https://placehold.co/100x100.png?text=ET",
     discussionPoints: [
       "Impact on work-life balance: flexibility vs. isolation.",
       "Technological requirements and cybersecurity concerns.",
@@ -80,7 +81,7 @@ export default async function TopicDetailPage({ params }: { params: { topicId: s
           <div className="flex items-center space-x-2 text-sm text-muted-foreground mt-1">
             <Avatar className="h-6 w-6">
               <AvatarImage src={topic.authorAvatar} alt={topic.author} data-ai-hint="author avatar"/>
-              <AvatarFallback>{topic.author.substring(0,1)}</AvatarFallback>
+              <AvatarFallback>{topic.author.substring(0,1).toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="font-body">By {topic.author}</span>
           </div>
@@ -153,3 +154,4 @@ export default async function TopicDetailPage({ params }: { params: { topicId: s
 export async function generateStaticParams() {
   return [{ topicId: '1' }];
 }
+
