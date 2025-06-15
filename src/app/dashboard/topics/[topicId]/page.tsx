@@ -5,12 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-// Minimal props for a dynamic route page
-interface TopicDetailPageProps {
-  params: { topicId: string };
-}
-
-export default function TopicDetailPage({ params }: TopicDetailPageProps) {
+// Correctly typing props for a Next.js App Router dynamic page
+// The component receives an object, and we destructure `params` from it.
+// `params` itself is an object where keys match your dynamic route segments.
+export default function TopicDetailPage({ params }: { params: { topicId: string } }) {
   if (!params.topicId) {
     return (
       <div className="text-center py-10">
