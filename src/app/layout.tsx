@@ -6,9 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
   title: 'Edutalks',
   description: 'Learn English through voice calls, daily topics, and quizzes.',
-  // icons: { // Removing this section for diagnostics
-  //   apple: '/icons/icon-192x192.png', 
-  // },
 };
 
 export const viewport: Viewport = {
