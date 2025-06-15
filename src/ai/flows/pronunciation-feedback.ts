@@ -10,7 +10,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod'; // Changed from 'genkit'
 
 const PronunciationFeedbackInputSchema = z.object({
   text: z
@@ -53,7 +53,10 @@ const pronunciationFeedbackFlow = ai.defineFlow(
     outputSchema: PronunciationFeedbackOutputSchema,
   },
   async input => {
+    // Since ai.definePrompt is mocked, this will use the mock implementation
     const {output} = await pronunciationFeedbackPrompt(input);
+    // The mock for definePrompt should return an object with an output property
+    // that matches PronunciationFeedbackOutputSchema for this flow.
     return output!;
   }
 );
