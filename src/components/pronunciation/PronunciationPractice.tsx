@@ -1,10 +1,12 @@
+
 "use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { getPronunciationFeedback, PronunciationFeedbackInput, PronunciationFeedbackOutput } from "@/ai/flows/pronunciation-feedback";
+// import { getPronunciationFeedback, PronunciationFeedbackInput, PronunciationFeedbackOutput } from "@/ai/flows/pronunciation-feedback";
+import type { PronunciationFeedbackOutput } from "@/ai/flows/pronunciation-feedback"; // Keep type for state
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,11 +56,17 @@ export function PronunciationPractice() {
     setFeedbackResult(null);
     setError(null);
     try {
-      const result = await getPronunciationFeedback(values as PronunciationFeedbackInput);
-      setFeedbackResult(result);
+      // const result = await getPronunciationFeedback(values as PronunciationFeedbackInput);
+      // Simulate successful feedback for diagnostic purposes
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+      const mockResult: PronunciationFeedbackOutput = {
+        feedback: "This is mock feedback. Your pronunciation seems good overall. Consider focusing on the 'th' sound.",
+        score: 85,
+      };
+      setFeedbackResult(mockResult);
     } catch (err) {
-      console.error("Error getting pronunciation feedback:", err);
-      setError("Failed to get feedback. Please try again.");
+      console.error("Error getting pronunciation feedback (mock):", err);
+      setError("Failed to get feedback. Please try again (mock error).");
     } finally {
       setIsLoading(false);
     }
