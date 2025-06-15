@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-// Define the props type more directly for a dynamic route segment page.
-// The page component receives an object with a 'params' property.
-export default async function TopicDetailPage({ params }: { params: { topicId: string } }) {
+// Using a standard, non-async function signature for a Server Component.
+// Using the most common and direct way to type params for a dynamic route.
+export default function TopicDetailPage({ params }: { params: { topicId: string } }) {
   // The check for params.topicId is fine.
   if (!params.topicId) {
     return (
@@ -26,15 +26,15 @@ export default async function TopicDetailPage({ params }: { params: { topicId: s
       </Button>
       <h1 className="font-headline text-4xl">Topic Details</h1>
       <p className="font-body">Topic ID: {params.topicId}</p>
-      <p className="font-body">This is a simplified page for build diagnostics.</p>
+      <p className="font-body">This is a simplified page for build diagnostics. Content has been minimized.</p>
     </div>
   );
 }
 
-// Commenting out generateStaticParams as it's not needed for this diagnostic version
-// and could be a source of build issues if not perfectly configured.
+// Ensure generateStaticParams is commented out or removed for this diagnostic build.
 // export async function generateStaticParams() {
 //   // In a real app, fetch possible topicIds
 //   // For diagnostics, we can return a minimal set or none if the page is purely dynamic
-//   return [{ topicId: '1' }, { topicId: 'test-topic' }];
+//   // return [{ topicId: '1' }, { topicId: 'test-topic' }];
+//   return []; // Return empty array to avoid generating any static paths for this test
 // }
