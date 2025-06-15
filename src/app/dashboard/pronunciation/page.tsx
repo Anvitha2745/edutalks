@@ -1,4 +1,5 @@
-import { PronunciationPractice } from "@/components/pronunciation/PronunciationPractice";
+
+// import { PronunciationPractice } from "@/components/pronunciation/PronunciationPractice";
 
 export default function PronunciationPage() {
   return (
@@ -7,7 +8,10 @@ export default function PronunciationPage() {
         <h1 className="font-headline text-4xl">Pronunciation Practice</h1>
         <p className="text-muted-foreground font-body">Improve your English pronunciation with AI-powered feedback.</p>
       </div>
-      <PronunciationPractice />
+      {/* <PronunciationPractice /> */}
+      <p className="font-body text-center text-muted-foreground p-8 border rounded-md">
+        The Pronunciation Practice feature is temporarily unavailable for build diagnostics.
+      </p>
     </div>
   );
 }

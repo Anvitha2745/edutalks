@@ -4,7 +4,7 @@ import type {NextConfig} from 'next';
 const nextAppConfig: NextConfig = {
   /* config options here */
   typescript: {
-    ignoreBuildErrors: true, // Temporarily set to true for diagnostics
+    ignoreBuildErrors: false, // Set to false to surface TypeScript errors
   },
   eslint: {
     ignoreDuringBuilds: false, // Set to false to surface ESLint errors

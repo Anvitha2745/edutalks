@@ -1,5 +1,5 @@
 // src/ai/flows/pronunciation-feedback.ts
-'use server';
+// 'use server';
 
 /**
  * @fileOverview Provides real-time pronunciation feedback during voice calls.
