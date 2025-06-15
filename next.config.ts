@@ -17,10 +17,10 @@ const withPWA = require("@ducanh2912/next-pwa").default(pwaConfig);
 const nextAppConfig: NextConfig = {
   /* config options here */
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Set to false to surface TypeScript errors
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false, // Set to false to surface ESLint errors
   },
   images: {
     remotePatterns: [
@@ -42,6 +42,6 @@ const nextAppConfig: NextConfig = {
 // In development (when NODE_ENV is 'development'), Turbopack will use nextAppConfig directly.
 // In production, withPWA(nextAppConfig) will be used.
 // const finalConfig = process.env.NODE_ENV === 'production' ? withPWA(nextAppConfig) : nextAppConfig;
-const finalConfig = nextAppConfig; // Temporarily disable PWA for build diagnosis
+const finalConfig = nextAppConfig; // PWA remains disabled for build diagnosis
 
 export default finalConfig;
