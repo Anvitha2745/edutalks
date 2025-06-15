@@ -1,6 +1,6 @@
 
-// import { config } from 'dotenv'; // Import dotenv
-// config(); // Load .env file before any other imports that might use environment variables
+import { config } from 'dotenv'; // Import dotenv
+config(); // Load .env file before any other imports that might use environment variables
 
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
