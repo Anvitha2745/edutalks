@@ -1,4 +1,3 @@
-
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +14,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Eye, EyeOff, LogIn, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -45,7 +51,7 @@ export default function AdminLoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // Placeholder for admin-specific login logic (e.g., checking roles after general Firebase auth)
+
     if (values.email === "admin@edutalks.com" && values.password === "password") {
       try {
         await signInWithEmailAndPassword(auth, values.email, values.password);
@@ -53,13 +59,16 @@ export default function AdminLoginPage() {
           title: "Admin Login Successful",
           description: "Redirecting to admin dashboard.",
         });
-        // TODO: Add role check here to ensure user is an admin
         router.push("/admin");
       } catch (error) {
         const authError = error as AuthError;
         console.error("Admin Firebase login error:", authError);
         let errorMessage = "An unexpected error occurred. Please try again.";
-        if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
+        if (
+          authError.code === "auth/user-not-found" ||
+          authError.code === "auth/wrong-password" ||
+          authError.code === "auth/invalid-credential"
+        ) {
           errorMessage = "Invalid email or password. Please ensure you have admin credentials.";
         }
         toast({
@@ -69,30 +78,32 @@ export default function AdminLoginPage() {
         });
       }
     } else {
-        // Fallback for non-default credentials, attempt standard Firebase auth
-        try {
-            await signInWithEmailAndPassword(auth, values.email, values.password);
-            // After successful auth, you'd typically check if this user has an 'admin' role.
-            // This needs to be replaced with actual role checking (e.g., custom claims or Firestore role field).
-            toast({
-                title: "Login Successful (Admin Role Mocked)",
-                description: "Redirecting to admin dashboard. Role verification needed in real app.",
-            });
-            router.push("/admin");
-        } catch (error) {
-            const authError = error as AuthError;
-            console.error("Admin Firebase login error:", authError);
-            let errorMessage = "Login failed. Please check your credentials.";
-            if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
-                errorMessage = "Invalid email or password for admin account.";
-            }
-            toast({
-                title: "Admin Login Failed",
-                description: errorMessage,
-                variant: "destructive",
-            });
+      try {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        toast({
+          title: "Login Successful (Admin Role Mocked)",
+          description: "Redirecting to admin dashboard. Role verification needed in real app.",
+        });
+        router.push("/admin");
+      } catch (error) {
+        const authError = error as AuthError;
+        console.error("Admin Firebase login error:", authError);
+        let errorMessage = "Login failed. Please check your credentials.";
+        if (
+          authError.code === "auth/user-not-found" ||
+          authError.code === "auth/wrong-password" ||
+          authError.code === "auth/invalid-credential"
+        ) {
+          errorMessage = "Invalid email or password for admin account.";
         }
+        toast({
+          title: "Admin Login Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     }
+
     setIsLoading(false);
   }
 
@@ -100,9 +111,7 @@ export default function AdminLoginPage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-destructive/10 via-background to-destructive/20 p-4">
       <div className="absolute top-4 left-4">
         <Button variant="ghost" asChild>
-          <Link href="/">
-             Back to Home
-          </Link>
+          <Link href="/">Back to Home</Link>
         </Button>
       </div>
       <div className="mb-8">
@@ -116,7 +125,7 @@ export default function AdminLoginPage() {
           <CardTitle className="font-headline text-3xl text-center">Admin Panel Login</CardTitle>
           <CardDescription className="text-center font-body">
             Access restricted to authorized personnel.
-          </Description>
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -128,7 +137,12 @@ export default function AdminLoginPage() {
                   <FormItem>
                     <FormLabel className="font-body">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="admin@example.com" {...field} className="font-body" disabled={isLoading} />
+                      <Input
+                        placeholder="admin@example.com"
+                        {...field}
+                        className="font-body"
+                        disabled={isLoading}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,14 +180,23 @@ export default function AdminLoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full font-body bg-destructive hover:bg-destructive/90 text-destructive-foreground" disabled={isLoading}>
-                {isLoading ? "Logging in..." : <><LogIn className="mr-2 h-4 w-4" /> Login to Admin Panel</>}
+              <Button
+                type="submit"
+                className="w-full font-body bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                disabled={isLoading}
+              >
+                {isLoading ? "Logging in..." : (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Login to Admin Panel
+                  </>
+                )}
               </Button>
             </form>
           </Form>
         </CardContent>
-         <CardFooter className="text-center text-xs text-muted-foreground pt-4">
-            <p>This is a restricted area. All activities may be monitored.</p>
+        <CardFooter className="text-center text-xs text-muted-foreground pt-4">
+          <p>This is a restricted area. All activities may be monitored.</p>
         </CardFooter>
       </Card>
     </div>
