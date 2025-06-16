@@ -56,16 +56,18 @@ export default function DashboardLayout({
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} asChild>
-                  <SidebarMenuButton
-                    isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
-                    tooltip={{ children: item.label, className: "font-body" }}
-                    className="font-body"
-                  >
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
+                  tooltip={{ children: item.label, className: "font-body" }}
+                  className="font-body"
+                >
+                  <Link href={item.href}>
                     <item.icon className="h-5 w-5" />
                     <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
+                  </Link>
+                </SidebarMenuButton>
+
               </SidebarMenuItem>
             ))}
           </SidebarMenu>

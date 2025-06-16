@@ -1,6 +1,4 @@
-
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,7 +13,6 @@ import {
   GraduationCap, 
   BadgePercent,  
   TicketPercent, 
-  BookUser, // For Instructor Management
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -29,21 +26,19 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { AppHeader } from "@/components/layout/AppHeader"; 
-import { Logo } from "@/components/layout/Logo";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 const adminNavItems = [
   { href: "/admin", label: "Admin Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "User & Instructor Mgt.", icon: Users }, // Updated label
+  { href: "/admin/users", label: "User & Instructor Mgt.", icon: Users },
   { href: "/admin/courses", label: "Course Management", icon: GraduationCap },
   { href: "/admin/quizzes", label: "Quiz Management", icon: FileQuestion },
   { href: "/admin/topics", label: "Topic Management", icon: BookCopy },
   { href: "/admin/referrals", label: "Referral System", icon: UsersRound },
   { href: "/admin/offers", label: "Offer Management", icon: BadgePercent },
   { href: "/admin/coupons", label: "Coupon Management", icon: TicketPercent },
-  // { href: "/admin/instructors", label: "Instructor Mgt.", icon: BookUser }, // Can be part of User Management
 ];
 
 export default function AdminLayout({
@@ -72,16 +67,20 @@ export default function AdminLayout({
           <SidebarMenu>
             {adminNavItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} asChild>
-                  <SidebarMenuButton
-                    isActive={pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))}
-                    tooltip={{ children: item.label, className: "font-body" }}
-                    className="font-body"
-                  >
+                <SidebarMenuButton
+                  asChild
+                  isActive={
+                    pathname === item.href ||
+                    (item.href !== "/admin" && pathname.startsWith(item.href))
+                  }
+                  tooltip={{ children: item.label, className: "font-body" }}
+                  className="font-body"
+                >
+                  <Link href={item.href}>
                     <item.icon className="h-5 w-5" />
                     <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
@@ -91,11 +90,13 @@ export default function AdminLayout({
           <Button variant="outline" onClick={handleAdminLogout} className="w-full font-body">
             <LogOut className="mr-2 h-4 w-4" /> Admin Logout
           </Button>
-          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} Edutalks Admin</p>
+          <p className="text-xs text-muted-foreground font-body text-center">
+            &copy; {new Date().getFullYear()} Edutalks Admin
+          </p>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
-        <AppHeader /> 
+        <AppHeader />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-muted/40">
           {children}
         </main>
@@ -103,4 +104,3 @@ export default function AdminLayout({
     </SidebarProvider>
   );
 }
-
