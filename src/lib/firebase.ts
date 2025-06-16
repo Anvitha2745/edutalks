@@ -4,8 +4,24 @@ import { getAuth } from "firebase/auth";
 // import { getFirestore } from "firebase/firestore";
 // import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
-// IMPORTANT: Replace these with your actual Firebase project configuration values!
+// ================================================================================================
+// IMPORTANT: FIREBASE CONFIGURATION
+// ================================================================================================
+// You MUST replace the placeholder values below with the actual Firebase project
+// configuration values from your Firebase project console.
+//
+// To get your Firebase project config:
+// 1. Go to the Firebase Console (https://console.firebase.google.com/).
+// 2. Select your project.
+// 3. Go to Project settings (click the gear icon ⚙️ near Project Overview).
+// 4. In the "General" tab, scroll down to "Your apps".
+// 5. If you haven't added a web app, do so.
+// 6. Click on your web app, and you'll find the `firebaseConfig` object.
+//    (It might be labeled as "SDK setup and configuration" with a "Config" option).
+// 7. Copy these values and paste them below, replacing the "YOUR_..." placeholders.
+//
+// Failure to do this will result in authentication errors like "auth/api-key-not-valid".
+// ================================================================================================
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY", // Replace with your API key
   authDomain: "YOUR_AUTH_DOMAIN", // Replace with your Auth domain (e.g., project-id.firebaseapp.com)
