@@ -1,3 +1,4 @@
+
 // src/lib/firebase.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -5,31 +6,28 @@ import { getAuth } from "firebase/auth";
 // import { getStorage } from "firebase/storage";
 
 // ================================================================================================
-// IMPORTANT: FIREBASE CONFIGURATION
+// FIREBASE CONFIGURATION
 // ================================================================================================
-// You MUST replace the placeholder values below with the actual Firebase project
-// configuration values from your Firebase project console.
-//
-// To get your Firebase project config:
+// The following Firebase project configuration values have been provided by the user.
+// If authentication issues persist (e.g., "auth/api-key-not-valid"),
+// please double-check these values against your Firebase project console:
 // 1. Go to the Firebase Console (https://console.firebase.google.com/).
-// 2. Select your project.
+// 2. Select your project (linguaverse-w3nct).
 // 3. Go to Project settings (click the gear icon ⚙️ near Project Overview).
 // 4. In the "General" tab, scroll down to "Your apps".
-// 5. If you haven't added a web app, do so.
-// 6. Click on your web app, and you'll find the `firebaseConfig` object.
-//    (It might be labeled as "SDK setup and configuration" with a "Config" option).
-// 7. Copy these values and paste them below, replacing the "YOUR_..." placeholders.
-//
-// Failure to do this will result in authentication errors like "auth/api-key-not-valid".
+// 5. Click on your web app (App ID: 1:953559003407:web:a8de73e2e1daf241c3ce7a).
+// 6. Find the `firebaseConfig` object under "SDK setup and configuration".
+// 7. Ensure "Email/Password" and "Google" sign-in providers are enabled in Authentication > Sign-in method.
 // ================================================================================================
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // Replace with your API key
-  authDomain: "YOUR_AUTH_DOMAIN", // Replace with your Auth domain (e.g., project-id.firebaseapp.com)
-  projectId: "YOUR_PROJECT_ID", // Replace with your Project ID
-  storageBucket: "YOUR_STORAGE_BUCKET", // Replace with your Storage Bucket (e.g., project-id.appspot.com)
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Replace with your Messaging Sender ID
-  appId: "YOUR_APP_ID", // Replace with your App ID
-  measurementId: "YOUR_MEASUREMENT_ID" // Optional: Replace with your Measurement ID
+  apiKey: "AIzaSyDEzQqFiH5j-VjEMczQdp90HY7-akwJFs4",
+  authDomain: "linguaverse-w3nct.firebaseapp.com",
+  databaseURL: "https://linguaverse-w3nct-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "linguaverse-w3nct",
+  storageBucket: "linguaverse-w3nct.firebasestorage.app",
+  messagingSenderId: "953559003407",
+  appId: "1:953559003407:web:a8de73e2e1daf241c3ce7a"
+  // measurementId can be added here if needed, but is often optional.
 };
 
 // Initialize Firebase
