@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,22 +18,25 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Corrected import
+import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase"; // Import Firebase auth
+import { createUserWithEmailAndPassword, updateProfile, AuthError } from "firebase/auth";
 
 const formSchema = z.object({
-  fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
+  fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }).max(50, {message: "Full name is too long."}),
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   confirmPassword: z.string().min(6, { message: "Password must be at least 6 characters." }),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"], // path of error
+  path: ["confirmPassword"],
 });
 
 export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -46,17 +50,38 @@ export function SignupForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Placeholder for signup logic
-    console.log(values);
-    toast({
-      title: "Signup Submitted (Mock)",
-      description: "In a real app, your account would be created.",
-    });
-     // Simulate successful signup and redirect
-    setTimeout(() => {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      // Update profile with full name
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+          displayName: values.fullName,
+        });
+      }
+      toast({
+        title: "Signup Successful",
+        description: "Your account has been created. Welcome!",
+      });
       router.push("/dashboard");
-    }, 1000);
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Firebase signup error:", authError);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (authError.code === "auth/email-already-in-use") {
+        errorMessage = "This email address is already in use.";
+      } else if (authError.code === "auth/weak-password") {
+        errorMessage = "The password is too weak. Please choose a stronger password.";
+      }
+      toast({
+        title: "Signup Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -69,7 +94,7 @@ export function SignupForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="fullName"
@@ -77,7 +102,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel className="font-body">Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} className="font-body" />
+                    <Input placeholder="John Doe" {...field} className="font-body" disabled={isLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,7 +115,7 @@ export function SignupForm() {
                 <FormItem>
                   <FormLabel className="font-body">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} className="font-body" />
+                    <Input placeholder="you@example.com" {...field} className="font-body" disabled={isLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,19 +129,21 @@ export function SignupForm() {
                   <FormLabel className="font-body">Password</FormLabel>
                   <FormControl>
                      <div className="relative">
-                      <Input 
-                        type={showPassword ? "text" : "password"} 
-                        placeholder="••••••••" 
-                        {...field} 
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        {...field}
                         className="font-body pr-10"
+                        disabled={isLoading}
                       />
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={showPassword ? "Hide password" : "Show password"}
+                        disabled={isLoading}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
@@ -134,19 +161,21 @@ export function SignupForm() {
                   <FormLabel className="font-body">Confirm Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Input 
-                        type={showConfirmPassword ? "text" : "password"} 
-                        placeholder="••••••••" 
-                        {...field} 
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        {...field}
                         className="font-body pr-10"
+                        disabled={isLoading}
                       />
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        disabled={isLoading}
                       >
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
@@ -156,13 +185,13 @@ export function SignupForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full font-body">
-              <UserPlus className="mr-2 h-4 w-4" /> Sign Up
+            <Button type="submit" className="w-full font-body" disabled={isLoading}>
+              {isLoading ? "Signing up..." : <><UserPlus className="mr-2 h-4 w-4" /> Sign Up</>}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex flex-col items-center space-y-2">
+      <CardFooter className="flex flex-col items-center space-y-2 pt-4">
         <p className="text-sm text-muted-foreground font-body">
           Already have an account?{" "}
           <Link href="/auth/login" className="font-semibold text-primary hover:underline">

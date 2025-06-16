@@ -16,11 +16,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Eye, EyeOff, LogIn, Presentation } from "lucide-react"; // Changed icon
+import { Eye, EyeOff, LogIn, Presentation, ChromeIcon } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/layout/Logo";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, AuthError } from "firebase/auth";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -29,6 +31,7 @@ const formSchema = z.object({
 
 export default function InstructorLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -40,24 +43,87 @@ export default function InstructorLoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Placeholder for instructor login logic
-    console.log("Instructor login attempt:", values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    // Placeholder for instructor-specific login logic (e.g., checking roles after general Firebase auth)
     if (values.email === "instructor@edutalks.com" && values.password === "password") {
-      toast({
-        title: "Instructor Login Successful (Mock)",
-        description: "Redirecting to instructor dashboard.",
-      });
-      // Simulate successful login and redirect
-      setTimeout(() => {
+       try {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        toast({
+          title: "Instructor Login Successful",
+          description: "Redirecting to instructor dashboard.",
+        });
+        // TODO: Add role check here if necessary
         router.push("/instructor");
-      }, 1000);
+      } catch (error) {
+        const authError = error as AuthError;
+        console.error("Instructor Firebase login error:", authError);
+        let errorMessage = "An unexpected error occurred. Please try again.";
+        if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
+          errorMessage = "Invalid email or password. Please ensure you have instructor credentials.";
+        }
+        toast({
+          title: "Instructor Login Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } else {
+         // Fallback for non-default credentials, attempt standard Firebase auth
+        try {
+            await signInWithEmailAndPassword(auth, values.email, values.password);
+            // After successful auth, you'd typically check if this user has an 'instructor' role.
+            // For now, we'll assume any successful login here is an instructor for demo purposes.
+            // This needs to be replaced with actual role checking (e.g., custom claims or Firestore role field).
+            toast({
+                title: "Login Successful (Instructor Role Mocked)",
+                description: "Redirecting to instructor dashboard. Role verification needed in real app.",
+            });
+            router.push("/instructor");
+        } catch (error) {
+            const authError = error as AuthError;
+            console.error("Instructor Firebase login error:", authError);
+            let errorMessage = "Login failed. Please check your credentials.";
+            if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
+                errorMessage = "Invalid email or password for instructor account.";
+            }
+            toast({
+                title: "Instructor Login Failed",
+                description: errorMessage,
+                variant: "destructive",
+            });
+        }
+    }
+    setIsLoading(false);
+  }
+
+  async function handleGoogleSignIn() {
+    setIsLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      // After successful Google auth, you'd typically check if this user has an 'instructor' role.
+      // For now, we'll assume any successful login here is an instructor for demo purposes.
+      // This needs to be replaced with actual role checking.
       toast({
-        title: "Instructor Login Failed (Mock)",
-        description: "Invalid credentials.",
+        title: "Google Sign-In Successful (Instructor Role Mocked)",
+        description: "Redirecting to instructor dashboard. Role verification needed.",
+      });
+      router.push("/instructor");
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Instructor Google Sign-In error:", authError);
+      let errorMessage = "Could not sign in with Google. Please try again.";
+       if (authError.code === "auth/popup-closed-by-user") {
+        errorMessage = "Sign-in popup closed. Please try again.";
+      }
+      toast({
+        title: "Instructor Google Sign-In Failed",
+        description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -85,7 +151,7 @@ export default function InstructorLoginPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -93,7 +159,7 @@ export default function InstructorLoginPage() {
                   <FormItem>
                     <FormLabel className="font-body">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="instructor@example.com" {...field} className="font-body" />
+                      <Input placeholder="instructor@example.com" {...field} className="font-body" disabled={isLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -107,19 +173,21 @@ export default function InstructorLoginPage() {
                     <FormLabel className="font-body">Password</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
-                          {...field} 
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          {...field}
                           className="font-body pr-10"
+                          disabled={isLoading}
                         />
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
                           className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                           onClick={() => setShowPassword(!showPassword)}
                           aria-label={showPassword ? "Hide password" : "Show password"}
+                          disabled={isLoading}
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
@@ -129,11 +197,24 @@ export default function InstructorLoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full font-body bg-primary hover:bg-primary/90 text-primary-foreground">
-                <LogIn className="mr-2 h-4 w-4" /> Login to Instructor Panel
+              <Button type="submit" className="w-full font-body bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
+                {isLoading ? "Logging in..." : <><LogIn className="mr-2 h-4 w-4" /> Login to Instructor Panel</>}
               </Button>
             </form>
           </Form>
+          <div className="mt-4 relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or
+              </span>
+            </div>
+          </div>
+          <Button variant="outline" className="w-full mt-4 font-body" onClick={handleGoogleSignIn} disabled={isLoading}>
+            <ChromeIcon className="mr-2 h-4 w-4" /> Sign in with Google
+          </Button>
         </CardContent>
          <CardFooter className="text-center text-xs text-muted-foreground pt-4">
             <p>Access for registered Edutalks instructors only.</p>
@@ -142,4 +223,3 @@ export default function InstructorLoginPage() {
     </div>
   );
 }
-

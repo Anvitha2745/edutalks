@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -21,7 +20,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from "@/components/ui/sidebar";
-import { AppHeader } from "@/components/layout/AppHeader"; 
+import { AppHeader } from "@/components/layout/AppHeader";
 import { Logo } from "@/components/layout/Logo";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -60,9 +59,12 @@ export default function InstructorLayout({
           <SidebarMenu>
             {instructorNavItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} asChild>
+                <Link href={item.href}>
                   <SidebarMenuButton
-                    isActive={pathname === item.href || (item.href !== "/instructor" && pathname.startsWith(item.href))}
+                    isActive={
+                      pathname === item.href ||
+                      (item.href !== "/instructor" && pathname.startsWith(item.href))
+                    }
                     tooltip={{ children: item.label, className: "font-body" }}
                     className="font-body"
                   >
@@ -79,11 +81,13 @@ export default function InstructorLayout({
           <Button variant="outline" onClick={handleInstructorLogout} className="w-full font-body">
             <LogOut className="mr-2 h-4 w-4" /> Instructor Logout
           </Button>
-          <p className="text-xs text-muted-foreground font-body text-center">&copy; {new Date().getFullYear()} Edutalks Instructor</p>
+          <p className="text-xs text-muted-foreground font-body text-center">
+            &copy; {new Date().getFullYear()} Edutalks Instructor
+          </p>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
-        <AppHeader /> 
+        <AppHeader />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-muted/40">
           {children}
         </main>
@@ -91,4 +95,3 @@ export default function InstructorLayout({
     </SidebarProvider>
   );
 }
-

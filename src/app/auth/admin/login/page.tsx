@@ -21,6 +21,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/layout/Logo";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, AuthError } from "firebase/auth";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -29,6 +31,7 @@ const formSchema = z.object({
 
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -40,25 +43,57 @@ export default function AdminLoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Placeholder for admin login logic
-    console.log("Admin login attempt:", values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    // Placeholder for admin-specific login logic (e.g., checking roles after general Firebase auth)
     if (values.email === "admin@edutalks.com" && values.password === "password") {
-      toast({
-        title: "Admin Login Successful (Mock)",
-        description: "Redirecting to admin dashboard.",
-      });
-      // Simulate successful login and redirect
-      setTimeout(() => {
+      try {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        toast({
+          title: "Admin Login Successful",
+          description: "Redirecting to admin dashboard.",
+        });
+        // TODO: Add role check here to ensure user is an admin
         router.push("/admin");
-      }, 1000);
+      } catch (error) {
+        const authError = error as AuthError;
+        console.error("Admin Firebase login error:", authError);
+        let errorMessage = "An unexpected error occurred. Please try again.";
+        if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
+          errorMessage = "Invalid email or password. Please ensure you have admin credentials.";
+        }
+        toast({
+          title: "Admin Login Failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } else {
-      toast({
-        title: "Admin Login Failed (Mock)",
-        description: "Invalid credentials.",
-        variant: "destructive",
-      });
+        // Fallback for non-default credentials, attempt standard Firebase auth
+        try {
+            await signInWithEmailAndPassword(auth, values.email, values.password);
+            // After successful auth, you'd typically check if this user has an 'admin' role.
+            // This needs to be replaced with actual role checking (e.g., custom claims or Firestore role field).
+            toast({
+                title: "Login Successful (Admin Role Mocked)",
+                description: "Redirecting to admin dashboard. Role verification needed in real app.",
+            });
+            router.push("/admin");
+        } catch (error) {
+            const authError = error as AuthError;
+            console.error("Admin Firebase login error:", authError);
+            let errorMessage = "Login failed. Please check your credentials.";
+            if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
+                errorMessage = "Invalid email or password for admin account.";
+            }
+            toast({
+                title: "Admin Login Failed",
+                description: errorMessage,
+                variant: "destructive",
+            });
+        }
     }
+    setIsLoading(false);
   }
 
   return (
@@ -81,7 +116,7 @@ export default function AdminLoginPage() {
           <CardTitle className="font-headline text-3xl text-center">Admin Panel Login</CardTitle>
           <CardDescription className="text-center font-body">
             Access restricted to authorized personnel.
-          </CardDescription>
+          </Description>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -93,7 +128,7 @@ export default function AdminLoginPage() {
                   <FormItem>
                     <FormLabel className="font-body">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="admin@example.com" {...field} className="font-body" />
+                      <Input placeholder="admin@example.com" {...field} className="font-body" disabled={isLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -107,19 +142,21 @@ export default function AdminLoginPage() {
                     <FormLabel className="font-body">Password</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
-                          {...field} 
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          {...field}
                           className="font-body pr-10"
+                          disabled={isLoading}
                         />
-                        <Button 
-                          type="button" 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
                           className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
                           onClick={() => setShowPassword(!showPassword)}
                           aria-label={showPassword ? "Hide password" : "Show password"}
+                          disabled={isLoading}
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
@@ -129,8 +166,8 @@ export default function AdminLoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full font-body bg-destructive hover:bg-destructive/90 text-destructive-foreground">
-                <LogIn className="mr-2 h-4 w-4" /> Login to Admin Panel
+              <Button type="submit" className="w-full font-body bg-destructive hover:bg-destructive/90 text-destructive-foreground" disabled={isLoading}>
+                {isLoading ? "Logging in..." : <><LogIn className="mr-2 h-4 w-4" /> Login to Admin Panel</>}
               </Button>
             </form>
           </Form>
