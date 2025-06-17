@@ -45,54 +45,38 @@ export default function InstructorLoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // Placeholder for instructor-specific login logic (e.g., checking roles after general Firebase auth)
-    if (values.email === "instructor@edutalks.com" && values.password === "password") {
-       try {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
-        toast({
-          title: "Instructor Login Successful",
-          description: "Redirecting to instructor dashboard.",
-        });
-        // TODO: Add role check here if necessary
-        router.push("/instructor");
-      } catch (error) {
-        const authError = error as AuthError;
-        console.error("Instructor Firebase login error:", authError);
-        let errorMessage = "An unexpected error occurred. Please try again.";
-        if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
-          errorMessage = "Invalid email or password. Please ensure you have instructor credentials.";
+    const isDefaultInstructor = values.email === "instructor@edutalks.com" && values.password === "password";
+
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Instructor Login Successful",
+        description: "Redirecting to instructor dashboard.",
+      });
+      // TODO: Add role check here (e.g., custom claims) to ensure the user is an instructor.
+      router.push("/instructor");
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Instructor Firebase login error:", authError);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (
+        authError.code === "auth/user-not-found" ||
+        authError.code === "auth/wrong-password" ||
+        authError.code === "auth/invalid-credential"
+      ) {
+        if (isDefaultInstructor) {
+            errorMessage = "Default instructor login failed. Please ensure 'instructor@edutalks.com' exists in Firebase Authentication with the password 'password', and that Email/Password sign-in is enabled.";
+        } else {
+            errorMessage = "Invalid email or password for instructor account.";
         }
-        toast({
-          title: "Instructor Login Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
+      } else if (authError.code === "auth/invalid-api-key" || authError.code === "auth/api-key-not-valid") {
+        errorMessage = "Firebase API Key is invalid. Please check your Firebase project configuration in src/lib/firebase.ts.";
       }
-    } else {
-         // Fallback for non-default credentials, attempt standard Firebase auth
-        try {
-            await signInWithEmailAndPassword(auth, values.email, values.password);
-            // After successful auth, you'd typically check if this user has an 'instructor' role.
-            // For now, we'll assume any successful login here is an instructor for demo purposes.
-            // This needs to be replaced with actual role checking (e.g., custom claims or Firestore role field).
-            toast({
-                title: "Login Successful (Instructor Role Mocked)",
-                description: "Redirecting to instructor dashboard. Role verification needed in real app.",
-            });
-            router.push("/instructor");
-        } catch (error) {
-            const authError = error as AuthError;
-            console.error("Instructor Firebase login error:", authError);
-            let errorMessage = "Login failed. Please check your credentials.";
-            if (authError.code === "auth/user-not-found" || authError.code === "auth/wrong-password" || authError.code === "auth/invalid-credential") {
-                errorMessage = "Invalid email or password for instructor account.";
-            }
-            toast({
-                title: "Instructor Login Failed",
-                description: errorMessage,
-                variant: "destructive",
-            });
-        }
+      toast({
+        title: "Instructor Login Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
     setIsLoading(false);
   }
@@ -103,7 +87,6 @@ export default function InstructorLoginPage() {
     try {
       await signInWithPopup(auth, provider);
       // After successful Google auth, you'd typically check if this user has an 'instructor' role.
-      // For now, we'll assume any successful login here is an instructor for demo purposes.
       // This needs to be replaced with actual role checking.
       toast({
         title: "Google Sign-In Successful (Instructor Role Mocked)",

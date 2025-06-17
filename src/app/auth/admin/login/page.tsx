@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,56 +53,41 @@ export default function AdminLoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    if (values.email === "admin@edutalks.com" && values.password === "password") {
-      try {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
-        toast({
-          title: "Admin Login Successful",
-          description: "Redirecting to admin dashboard.",
-        });
-        router.push("/admin");
-      } catch (error) {
-        const authError = error as AuthError;
-        console.error("Admin Firebase login error:", authError);
-        let errorMessage = "An unexpected error occurred. Please try again.";
-        if (
-          authError.code === "auth/user-not-found" ||
-          authError.code === "auth/wrong-password" ||
-          authError.code === "auth/invalid-credential"
-        ) {
-          errorMessage = "Invalid email or password. Please ensure you have admin credentials.";
+    const isDefaultAdmin = values.email === "admin@edutalks.com" && values.password === "password";
+
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Admin Login Successful",
+        description: "Redirecting to admin dashboard.",
+      });
+      // TODO: Implement actual role verification here (e.g., check custom claims)
+      // For now, any successful Firebase login with ANY credentials will redirect.
+      router.push("/admin");
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error("Admin Firebase login error:", authError);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      if (
+        authError.code === "auth/user-not-found" ||
+        authError.code === "auth/wrong-password" ||
+        authError.code === "auth/invalid-credential"
+      ) {
+        if (isDefaultAdmin) {
+            errorMessage = "Default admin login failed. Please ensure 'admin@edutalks.com' exists in Firebase Authentication with the password 'password', and that Email/Password sign-in is enabled in your Firebase project.";
+        } else {
+            errorMessage = "Invalid email or password. Please check your credentials.";
         }
-        toast({
-          title: "Admin Login Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
+      } else if (authError.code === "auth/invalid-api-key" || authError.code === "auth/api-key-not-valid") {
+        errorMessage = "Firebase API Key is invalid. Please check your Firebase project configuration in src/lib/firebase.ts.";
       }
-    } else {
-      try {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
-        toast({
-          title: "Login Successful (Admin Role Mocked)",
-          description: "Redirecting to admin dashboard. Role verification needed in real app.",
-        });
-        router.push("/admin");
-      } catch (error) {
-        const authError = error as AuthError;
-        console.error("Admin Firebase login error:", authError);
-        let errorMessage = "Login failed. Please check your credentials.";
-        if (
-          authError.code === "auth/user-not-found" ||
-          authError.code === "auth/wrong-password" ||
-          authError.code === "auth/invalid-credential"
-        ) {
-          errorMessage = "Invalid email or password for admin account.";
-        }
-        toast({
-          title: "Admin Login Failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      }
+      
+      toast({
+        title: "Admin Login Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
 
     setIsLoading(false);

@@ -1,3 +1,4 @@
+
 # LinguaVerse Firebase Authentication Setup
 
 This document outlines the Firebase Authentication setup for the LinguaVerse application, covering user, instructor, and admin authentication.
@@ -21,13 +22,13 @@ Before the application's authentication can work, you need to set up a Firebase 
 3.  **Enable Sign-in Methods**:
     *   In the Firebase Console, navigate to "Authentication" (under Build).
     *   Go to the "Sign-in method" tab.
-    *   Enable the following providers:
-        *   **Email/Password**: Click on it, enable the toggle, and save.
-        *   **Google**: Click on it, enable the toggle, provide a project support email, and save.
+    *   **Crucially, enable the following providers**:
+        *   **Email/Password**: Click on it, enable the toggle, and save. **This is required for all email/password logins (user, instructor, admin).**
+        *   **Google**: Click on it, enable the toggle, provide a project support email, and save. **This is required if you want users/instructors to log in with Google.**
 
 4.  **Configure `src/lib/firebase.ts`**:
     *   The application contains a file `src/lib/firebase.ts` for Firebase initialization.
-    *   You **MUST** replace the placeholder values in this file with the `firebaseConfig` object you copied in Step 2.
+    *   You **MUST** replace the placeholder values in this file with the `firebaseConfig` object you copied in Step 2. If you've already done this and are still facing issues like `auth/api-key-not-valid`, double-check every value.
 
     ```typescript
     // src/lib/firebase.ts
@@ -43,6 +44,16 @@ Before the application's authentication can work, you need to set up a Firebase 
     };
     // ...
     ```
+
+5.  **(Optional but Recommended for Testing) Create Default Admin/Instructor Users**:
+    *   The admin login page defaults to `admin@edutalks.com` / `password`.
+    *   The instructor login page defaults to `instructor@edutalks.com` / `password`.
+    *   If you intend to use these default credentials for testing, you **must create these users manually in your Firebase project**:
+        *   Go to Firebase Console -> Authentication -> Users tab.
+        *   Click "Add user".
+        *   Enter the email (e.g., `admin@edutalks.com`) and password (e.g., `password`).
+        *   Repeat for the instructor user if needed.
+    *   If you don't create these users, login with these specific credentials will fail with "User not found" or "Invalid credentials".
 
 ## 2. Frontend Integration
 
@@ -119,6 +130,6 @@ The frontend application uses the Firebase SDK to interact with Firebase Authent
 5.  **Phone Number Authentication (for Instructors)**:
     *   If still required, integrate Firebase Phone Number Authentication. This often involves:
         *   FirebaseUI for a pre-built flow, or
-        *   Custom implementation with `RecaptchaVerifier` and `signInWithPhoneNumber`.
+        *   Custom implementation with `RecaptchaVerifier` and `signInWithPhoneNumber`. This might also require backend logic (Cloud Functions) for linking phone numbers to existing email/Google authenticated users as a verification step.
 
 This documentation provides a snapshot of the current authentication setup. Remember to keep it updated as the system evolves.
