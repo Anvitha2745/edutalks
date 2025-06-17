@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, UserPlus, Search, Edit, Trash2, Eye, UserCog, UserCheck, ShieldCheck, BookUser, Loader2, AlertTriangle } from "lucide-react";
+import { MoreHorizontal, UserPlus, Search, Edit, Trash2, Eye, UserCog, UserCheck, ShieldCheck, BookUser, Loader2, AlertTriangle, Users as UsersIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { ApiUser } from "@/app/api/admin/users/route"; // Import the user type
 
@@ -22,6 +22,7 @@ interface AdminUserDisplay {
   role: "User" | "Moderator" | "Instructor" | "Admin"; // This will need to be derived or fetched
   status: "Active" | "Suspended"; // Based on 'disabled' property
   joinedDate: string; // creationTime
+  raw: ApiUser; // Keep raw API user data for updates
 }
 
 
@@ -30,58 +31,100 @@ export default function UserManagementPage() {
   const [users, setUsers] = useState<AdminUserDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    async function fetchUsers() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // TODO: Send Authorization header with Firebase ID token for security
-        const response = await fetch('/api/admin/users');
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.details || `Failed to fetch users: ${response.statusText}`);
-        }
-        const apiUsers: ApiUser[] = await response.json();
-        
-        // Transform ApiUser to AdminUserDisplay
-        const displayUsers = apiUsers.map(apiUser => ({
-          id: apiUser.uid,
-          fullName: apiUser.displayName,
-          email: apiUser.email,
-          avatarUrl: apiUser.photoURL,
-          // TODO: Role needs to be properly determined (e.g., from custom claims or Firestore)
-          // For now, default to 'User' or try to guess based on email for mock display
-          role: apiUser.email === 'admin@edutalks.com' ? 'Admin' : 
-                apiUser.email === 'instructor@edutalks.com' ? 'Instructor' : 
-                'User', 
-          status: apiUser.disabled ? 'Suspended' : 'Active',
-          joinedDate: new Date(apiUser.creationTime).toLocaleDateString(),
-        }));
-        setUsers(displayUsers);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
-        toast({
-          title: "Error Fetching Users",
-          description: err instanceof Error ? err.message : "Could not load user data.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // TODO: Send Authorization header with Firebase ID token for security
+      const response = await fetch('/api/admin/users');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || `Failed to fetch users: ${response.statusText}`);
       }
+      const apiUsers: ApiUser[] = await response.json();
+      
+      const displayUsers = apiUsers.map((apiUser): AdminUserDisplay => ({
+        id: apiUser.uid,
+        fullName: apiUser.displayName,
+        email: apiUser.email,
+        avatarUrl: apiUser.photoURL,
+        role: apiUser.customClaims?.admin ? 'Admin' : 
+              apiUser.customClaims?.instructor ? 'Instructor' : 
+              'User', // Simplified role determination
+        status: apiUser.disabled ? 'Suspended' : 'Active',
+        joinedDate: new Date(apiUser.creationTime).toLocaleDateString(),
+        raw: apiUser,
+      }));
+      setUsers(displayUsers);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      toast({
+        title: "Error Fetching Users",
+        description: err instanceof Error ? err.message : "Could not load user data.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-    fetchUsers();
   }, [toast]);
 
-  const handleAction = (action: string, userName?: string, userId?: string) => {
-    // TODO: Implement actual Firebase actions (e.g., update role, disable user)
-    // These actions would typically call another API endpoint (e.g., PUT /api/admin/users/[userId])
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handleUpdateUserStatus = async (userId: string, disabled: boolean) => {
+    // Optimistically update UI
+    setUsers(prevUsers => prevUsers.map(u => u.id === userId ? { ...u, status: disabled ? 'Suspended' : 'Active' } : u));
+
+    try {
+      // TODO: Send Authorization header with Firebase ID token for security
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disabled }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || `Failed to update user: ${response.statusText}`);
+      }
+
+      const updatedApiUser: ApiUser = await response.json();
+      // Update UI with confirmed data
+      setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {
+        ...u,
+        status: updatedApiUser.disabled ? 'Suspended' : 'Active',
+        raw: updatedApiUser,
+       } : u));
+
+      toast({
+        title: "User Status Updated",
+        description: `User ${disabled ? 'suspended' : 'unsuspended'} successfully.`,
+      });
+
+    } catch (err) {
+      console.error("Error updating user status:", err);
+      toast({
+        title: "Update Failed",
+        description: err instanceof Error ? err.message : "Could not update user status.",
+        variant: "destructive",
+      });
+      // Revert optimistic update
+      fetchUsers(); 
+    }
+  };
+  
+  // Placeholder for other actions
+  const handleGenericAction = (action: string, userName?: string) => {
     toast({
       title: `Action: ${action}`,
-      description: `Mock action '${action}' for user ${userName || userId || 'N/A'} triggered. This would interact with Firebase via a backend API.`,
+      description: `Mock action '${action}' for user ${userName || 'N/A'} triggered. This needs full implementation.`,
     });
   };
+
 
   const getRoleBadgeVariant = (role: AdminUserDisplay["role"]) => {
     switch (role) {
@@ -101,6 +144,11 @@ export default function UserManagementPage() {
     }
   }
 
+  const filteredUsers = users.filter(user => 
+    (user.fullName && user.fullName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="space-y-8">
       <div>
@@ -118,9 +166,14 @@ export default function UserManagementPage() {
             <div className="flex gap-2 w-full md:w-auto">
                 <div className="relative flex-grow">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search users..." className="pl-9 font-body w-full" />
+                    <Input 
+                        placeholder="Search users by name or email..." 
+                        className="pl-9 font-body w-full" 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
-                <Button variant="default" className="font-body" onClick={() => handleAction('Add User/Instructor')}>
+                <Button variant="default" className="font-body" onClick={() => handleGenericAction('Add User/Instructor')}>
                     <UserPlus className="mr-2 h-4 w-4" /> Add User / Instructor
                 </Button>
             </div>
@@ -138,17 +191,17 @@ export default function UserManagementPage() {
               <AlertTriangle className="h-8 w-8 mb-2" />
               <p className="font-body font-semibold">Failed to load users</p>
               <p className="font-body text-sm">{error}</p>
-              <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="mt-4">Retry</Button>
+              <Button variant="outline" size="sm" onClick={fetchUsers} className="mt-4">Retry</Button>
             </div>
           )}
-          {!isLoading && !error && users.length === 0 && (
+          {!isLoading && !error && filteredUsers.length === 0 && (
             <div className="text-center py-10 text-muted-foreground font-body">
-                 <Users className="h-12 w-12 mx-auto mb-4" />
+                 <UsersIcon className="h-12 w-12 mx-auto mb-4" />
                 <p className="font-semibold text-lg">No users found.</p>
-                <p>There are currently no users in the system or matching your search.</p>
+                <p>{searchTerm ? "No users match your search criteria." : "There are currently no users in the system."}</p>
             </div>
           )}
-          {!isLoading && !error && users.length > 0 && (
+          {!isLoading && !error && filteredUsers.length > 0 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -161,7 +214,7 @@ export default function UserManagementPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
@@ -196,25 +249,25 @@ export default function UserManagementPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="font-body">
-                          <DropdownMenuItem onClick={() => handleAction('View Profile', user.fullName, user.id)}>
+                          <DropdownMenuItem onClick={() => handleGenericAction('View Profile', user.fullName)}>
                             <Eye className="mr-2 h-4 w-4" /> View Profile
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleAction('Edit User', user.fullName, user.id)}>
-                            <Edit className="mr-2 h-4 w-4" /> Edit User (e.g. Role)
+                          <DropdownMenuItem onClick={() => handleGenericAction('Edit User (Role)', user.fullName)}>
+                            <Edit className="mr-2 h-4 w-4" /> Edit User (Role)
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {user.status === "Active" && (
-                            <DropdownMenuItem className="text-orange-600 focus:text-orange-700 focus:bg-orange-500/10" onClick={() => handleAction('Suspend User', user.fullName, user.id)}>
+                          {user.status === "Active" ? (
+                            <DropdownMenuItem className="text-orange-600 focus:text-orange-700 focus:bg-orange-500/10" onClick={() => handleUpdateUserStatus(user.id, true)}>
                                 <UserCog className="mr-2 h-4 w-4" /> Suspend User
                             </DropdownMenuItem>
-                          )}
-                          {user.status === "Suspended" && (
-                             <DropdownMenuItem className="text-green-600 focus:text-green-700 focus:bg-green-500/10" onClick={() => handleAction('Unsuspend User', user.fullName, user.id)}>
+                          ) : (
+                             <DropdownMenuItem className="text-green-600 focus:text-green-700 focus:bg-green-500/10" onClick={() => handleUpdateUserStatus(user.id, false)}>
                                 <UserCheck className="mr-2 h-4 w-4" /> Unsuspend User
                             </DropdownMenuItem>
                           )}
+                          {/* Prevent deleting admins as a safeguard, can be adjusted */}
                           {user.role !== "Admin" && (
-                              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleAction('Delete User', user.fullName, user.id)}>
+                              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleGenericAction('Delete User', user.fullName)}>
                               <Trash2 className="mr-2 h-4 w-4" /> Delete User
                               </DropdownMenuItem>
                           )}
@@ -226,9 +279,9 @@ export default function UserManagementPage() {
               </TableBody>
             </Table>
           )}
-          {!isLoading && !error && users.length > 0 && (
+          {!isLoading && !error && filteredUsers.length > 0 && (
             <p className="text-xs text-muted-foreground mt-4 font-body text-center">
-                Displaying {users.length} user(s). Pagination would be needed for larger datasets.
+                Displaying {filteredUsers.length} user(s). Pagination would be needed for larger datasets.
             </p>
           )}
         </CardContent>
