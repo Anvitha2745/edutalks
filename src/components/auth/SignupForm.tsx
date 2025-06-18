@@ -20,8 +20,12 @@ import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { auth } from "@/lib/firebase"; // Import Firebase auth
-import { createUserWithEmailAndPassword, updateProfile, AuthError } from "firebase/auth";
+import { auth } from "@/lib/firebase"; 
+import { createUserWithEmailAndPassword, updateProfile, AuthError, type User } from "firebase/auth";
+
+// Placeholder for your Cloud Function base URL
+const CLOUD_FUNCTION_BASE_URL = "YOUR_CLOUD_FUNCTION_BASE_URL_HERE"; // e.g., https://us-central1-your-project-id.cloudfunctions.net/api
+
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }).max(50, {message: "Full name is too long."}),
@@ -50,21 +54,73 @@ export function SignupForm() {
     },
   });
 
+  async function createUserProfileInFirestore(firebaseUser: User, fullName: string) {
+    try {
+      const token = await firebaseUser.getIdToken();
+      if (CLOUD_FUNCTION_BASE_URL === "YOUR_CLOUD_FUNCTION_BASE_URL_HERE") {
+        console.warn("Cloud Function URL is not configured. Skipping Firestore profile creation.");
+        toast({
+          title: "Profile Partially Created",
+          description: "Your authentication account is set up, but please configure the backend URL to complete profile creation in Firestore.",
+          variant: "default", // Changed from destructive to default or warning
+        });
+        return;
+      }
+
+      // Simple split for fullName to firstName and lastName
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0] || "User";
+      const lastName = nameParts.slice(1).join(' ') || " ";
+
+
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          role: 'student', // Default role for new signups
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create user profile in Firestore.");
+      }
+      console.log("User profile created in Firestore successfully.");
+    } catch (error) {
+      console.error("Error creating user profile in Firestore:", error);
+      toast({
+        title: "Profile Creation Issue",
+        description: `Your account is created, but there was an issue setting up your full profile: ${error instanceof Error ? error.message : String(error)}. You can complete this from your profile page or contact support.`,
+        variant: "default", // Changed from destructive
+        duration: 7000,
+      });
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      // Update profile with full name
+      
       if (userCredential.user) {
         await updateProfile(userCredential.user, {
           displayName: values.fullName,
         });
+        // After Firebase Auth user is created and displayName updated, create profile in Firestore
+        await createUserProfileInFirestore(userCredential.user, values.fullName);
       }
+
       toast({
         title: "Signup Successful",
         description: "Your account has been created. Welcome!",
       });
       router.push("/dashboard");
+
     } catch (error) {
       const authError = error as AuthError;
       console.error("Firebase signup error:", authError);

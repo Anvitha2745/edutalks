@@ -1,5 +1,5 @@
 
-"use client";
+'use client';
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,20 +11,35 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, UserPlus, Search, Edit, Trash2, Eye, UserCog, UserCheck, ShieldCheck, BookUser, Loader2, AlertTriangle, Users as UsersIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { ApiUser } from "@/app/api/admin/users/route"; // Import the user type
+import { auth } from "@/lib/firebase"; // Import Firebase auth for getting ID token
 
-// Interface matching the structure from the API and suitable for the table
-interface AdminUserDisplay {
-  id: string; // uid from Firebase
-  fullName?: string; // displayName
+// Placeholder for your Cloud Function base URL
+const CLOUD_FUNCTION_BASE_URL = "YOUR_CLOUD_FUNCTION_BASE_URL_HERE"; // e.g., https://us-central1-your-project-id.cloudfunctions.net/api
+
+// Matches the structure from your Firestore 'users' collection
+interface BackendUser {
+  id: string; // UID from Firebase Auth, also document ID in Firestore
   email?: string;
-  avatarUrl?: string; // photoURL
-  role: "User" | "Moderator" | "Instructor" | "Admin"; // This will need to be derived or fetched
-  status: "Active" | "Suspended"; // Based on 'disabled' property
-  joinedDate: string; // creationTime
-  raw: ApiUser; // Keep raw API user data for updates
+  firstName?: string;
+  lastName?: string;
+  role: "student" | "instructor" | "admin";
+  isActive: boolean;
+  createdAt: string | { _seconds: number, _nanoseconds: number }; // Firestore timestamp
+  updatedAt?: string | { _seconds: number, _nanoseconds: number };
+  // Add other fields if necessary
 }
 
+// Frontend display structure
+interface AdminUserDisplay {
+  id: string;
+  fullName?: string;
+  email?: string;
+  avatarUrl?: string; // Keep for UI, but it's not in backend schema
+  role: "student" | "instructor" | "admin";
+  status: "Active" | "Suspended"; // Derived from isActive
+  joinedDate: string;
+  isActive: boolean; // Store the original isActive for updates
+}
 
 export default function UserManagementPage() {
   const { toast } = useToast();
@@ -33,30 +48,57 @@ export default function UserManagementPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const getIdToken = async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      return await currentUser.getIdToken(true);
+    }
+    return null;
+  };
+
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      // TODO: Send Authorization header with Firebase ID token for security
-      const response = await fetch('/api/admin/users');
+      const token = await getIdToken();
+      if (!token) {
+        throw new Error("Authentication token not available. Please ensure you are logged in as an admin.");
+      }
+      if (CLOUD_FUNCTION_BASE_URL === "YOUR_CLOUD_FUNCTION_BASE_URL_HERE") {
+        throw new Error("Cloud Function URL is not configured. Please update it in src/app/admin/users/page.tsx");
+      }
+
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.details || `Failed to fetch users: ${response.statusText}`);
+        throw new Error(errorData.error || `Failed to fetch users: ${response.statusText}`);
       }
-      const apiUsers: ApiUser[] = await response.json();
+      const backendUsers: BackendUser[] = await response.json();
       
-      const displayUsers = apiUsers.map((apiUser): AdminUserDisplay => ({
-        id: apiUser.uid,
-        fullName: apiUser.displayName,
-        email: apiUser.email,
-        avatarUrl: apiUser.photoURL,
-        role: apiUser.customClaims?.admin ? 'Admin' : 
-              apiUser.customClaims?.instructor ? 'Instructor' : 
-              'User', // Simplified role determination
-        status: apiUser.disabled ? 'Suspended' : 'Active',
-        joinedDate: new Date(apiUser.creationTime).toLocaleDateString(),
-        raw: apiUser,
-      }));
+      const displayUsers = backendUsers.map((user): AdminUserDisplay => {
+        let creationDate = "N/A";
+        if (typeof user.createdAt === 'string') {
+            creationDate = new Date(user.createdAt).toLocaleDateString();
+        } else if (user.createdAt && typeof user.createdAt._seconds === 'number') {
+            creationDate = new Date(user.createdAt._seconds * 1000).toLocaleDateString();
+        }
+
+        return {
+            id: user.id,
+            fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+            email: user.email,
+            avatarUrl: `https://placehold.co/100x100.png?text=${(user.firstName || 'U').substring(0,1)}${(user.lastName || '').substring(0,1)}`, // Placeholder avatar
+            role: user.role,
+            status: user.isActive ? 'Active' : 'Suspended',
+            joinedDate: creationDate,
+            isActive: user.isActive,
+        };
+      });
       setUsers(displayUsers);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -75,36 +117,49 @@ export default function UserManagementPage() {
     fetchUsers();
   }, [fetchUsers]);
 
-  const handleUpdateUserStatus = async (userId: string, disabled: boolean) => {
+  const handleUpdateUserStatus = async (userId: string, currentIsActive: boolean) => {
     // Optimistically update UI
-    setUsers(prevUsers => prevUsers.map(u => u.id === userId ? { ...u, status: disabled ? 'Suspended' : 'Active' } : u));
+    setUsers(prevUsers => prevUsers.map(u => u.id === userId ? { ...u, status: !currentIsActive ? 'Active' : 'Suspended', isActive: !currentIsActive } : u));
 
     try {
-      // TODO: Send Authorization header with Firebase ID token for security
-      const response = await fetch(`/api/admin/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ disabled }),
+      const token = await getIdToken();
+      if (!token) {
+        throw new Error("Authentication token not available.");
+      }
+       if (CLOUD_FUNCTION_BASE_URL === "YOUR_CLOUD_FUNCTION_BASE_URL_HERE") {
+        throw new Error("Cloud Function URL is not configured.");
+      }
+
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isActive: !currentIsActive }), // Send the new desired state
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.details || `Failed to update user: ${response.statusText}`);
+        throw new Error(errorData.error || `Failed to update user: ${response.statusText}`);
       }
 
-      const updatedApiUser: ApiUser = await response.json();
-      // Update UI with confirmed data
-      setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {
-        ...u,
-        status: updatedApiUser.disabled ? 'Suspended' : 'Active',
-        raw: updatedApiUser,
-       } : u));
+      // const updatedBackendUser: BackendUser = await response.json(); // Backend PUT might not return user
+      // For now, optimistic update is enough. Or re-fetch the specific user or all users.
+      // To be safe, re-fetch all users to ensure UI consistency with backend state.
+      // await fetchUsers(); 
+      // OR update specific user based on response if backend returns it:
+      // setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {
+      //   ...u,
+      //   status: updatedBackendUser.isActive ? 'Active' : 'Suspended',
+      //   isActive: updatedBackendUser.isActive,
+      // } : u));
+
 
       toast({
         title: "User Status Updated",
-        description: `User ${disabled ? 'suspended' : 'unsuspended'} successfully.`,
+        description: `User ${!currentIsActive ? 'unsuspended' : 'suspended'} successfully.`,
       });
-
     } catch (err) {
       console.error("Error updating user status:", err);
       toast({
@@ -112,35 +167,70 @@ export default function UserManagementPage() {
         description: err instanceof Error ? err.message : "Could not update user status.",
         variant: "destructive",
       });
-      // Revert optimistic update
+      // Revert optimistic update on error
       fetchUsers(); 
     }
   };
-  
-  // Placeholder for other actions
-  const handleGenericAction = (action: string, userName?: string) => {
-    toast({
-      title: `Action: ${action}`,
-      description: `Mock action '${action}' for user ${userName || 'N/A'} triggered. This needs full implementation.`,
-    });
+
+  const handleDeleteUser = async (userId: string) => {
+    // Add a confirmation dialog here in a real app
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      return;
+    }
+    try {
+      const token = await getIdToken();
+      if (!token) {
+        throw new Error("Authentication token not available.");
+      }
+      if (CLOUD_FUNCTION_BASE_URL === "YOUR_CLOUD_FUNCTION_BASE_URL_HERE") {
+        throw new Error("Cloud Function URL is not configured.");
+      }
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to delete user: ${response.statusText}`);
+      }
+      toast({
+        title: "User Deleted",
+        description: "User has been deleted successfully.",
+      });
+      fetchUsers(); // Refresh the list
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      toast({
+        title: "Delete Failed",
+        description: err instanceof Error ? err.message : "Could not delete user.",
+        variant: "destructive",
+      });
+    }
   };
 
 
+  const handleGenericAction = (action: string, userName?: string) => {
+    toast({
+      title: `Action: ${action}`,
+      description: `Mock action '${action}' for user ${userName || 'N/A'} triggered. Role change needs specific API.`,
+    });
+  };
+
   const getRoleBadgeVariant = (role: AdminUserDisplay["role"]) => {
     switch (role) {
-      case "Admin": return "destructive";
-      case "Instructor": return "default"; 
-      case "Moderator": return "secondary";
-      default: return "outline";
+      case "admin": return "destructive";
+      case "instructor": return "default";
+      default: return "outline"; // student
     }
   };
 
   const getRoleIcon = (role: AdminUserDisplay["role"]) => {
     switch (role) {
-        case "Admin": return <ShieldCheck className="mr-2 h-4 w-4" />;
-        case "Instructor": return <BookUser className="mr-2 h-4 w-4" />;
-        case "Moderator": return <UserCog className="mr-2 h-4 w-4" />;
-        default: return <UserCheck className="mr-2 h-4 w-4" />;
+      case "admin": return <ShieldCheck className="mr-2 h-4 w-4" />;
+      case "instructor": return <BookUser className="mr-2 h-4 w-4" />;
+      default: return <UserCheck className="mr-2 h-4 w-4" />; // student
     }
   }
 
@@ -155,7 +245,6 @@ export default function UserManagementPage() {
         <h1 className="font-headline text-4xl">User & Instructor Management</h1>
         <p className="text-muted-foreground font-body">View, manage roles, and moderate Edutalks users and instructors.</p>
       </div>
-
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -164,18 +253,18 @@ export default function UserManagementPage() {
               <CardDescription className="font-body">List of registered users, instructors, and moderators.</CardDescription>
             </div>
             <div className="flex gap-2 w-full md:w-auto">
-                <div className="relative flex-grow">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        placeholder="Search users by name or email..." 
-                        className="pl-9 font-body w-full" 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-                <Button variant="default" className="font-body" onClick={() => handleGenericAction('Add User/Instructor')}>
-                    <UserPlus className="mr-2 h-4 w-4" /> Add User / Instructor
-                </Button>
+              <div className="relative flex-grow">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search users by name or email..." 
+                  className="pl-9 font-body w-full" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Button variant="default" className="font-body" onClick={() => handleGenericAction('Add User/Instructor (Not Implemented)')}>
+                <UserPlus className="mr-2 h-4 w-4" /> Add User / Instructor
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -196,9 +285,9 @@ export default function UserManagementPage() {
           )}
           {!isLoading && !error && filteredUsers.length === 0 && (
             <div className="text-center py-10 text-muted-foreground font-body">
-                 <UsersIcon className="h-12 w-12 mx-auto mb-4" />
-                <p className="font-semibold text-lg">No users found.</p>
-                <p>{searchTerm ? "No users match your search criteria." : "There are currently no users in the system."}</p>
+              <UsersIcon className="h-12 w-12 mx-auto mb-4" />
+              <p className="font-semibold text-lg">No users found.</p>
+              <p>{searchTerm ? "No users match your search criteria." : "There are currently no users in the system."}</p>
             </div>
           )}
           {!isLoading && !error && filteredUsers.length > 0 && (
@@ -219,7 +308,7 @@ export default function UserManagementPage() {
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-9 w-9">
-                          <AvatarImage src={user.avatarUrl || `https://placehold.co/100x100.png?text=${user.fullName ? user.fullName.substring(0,1) : 'U'}`} alt={user.fullName || 'User'} data-ai-hint="person avatar" />
+                          <AvatarImage src={user.avatarUrl || `https://placehold.co/100x100.png?text=${user.fullName ? user.fullName.substring(0,1) : 'U'}`} alt={user.fullName || 'User'} />
                           <AvatarFallback>{user.fullName ? user.fullName.substring(0, 2).toUpperCase() : (user.email ? user.email.substring(0,2).toUpperCase() : 'N/A')}</AvatarFallback>
                         </Avatar>
                         <span className="font-medium font-body">{user.fullName || user.email || 'N/A'}</span>
@@ -233,10 +322,10 @@ export default function UserManagementPage() {
                     </TableCell>
                     <TableCell>
                       <Badge 
-                          variant={user.status === "Active" ? "default" : "destructive"}
-                          className={`capitalize font-body ${user.status === "Active" ? 'bg-green-500/20 text-green-700 border-green-400' : 'bg-red-500/20 text-red-700 border-red-400'}`}
+                        variant={user.status === "Active" ? "default" : "destructive"}
+                        className={`capitalize font-body ${user.status === "Active" ? 'bg-green-500/20 text-green-700 border-green-400' : 'bg-red-500/20 text-red-700 border-red-400'}`}
                       >
-                          {user.status}
+                        {user.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-body text-muted-foreground">{user.joinedDate}</TableCell>
@@ -249,27 +338,26 @@ export default function UserManagementPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="font-body">
-                          <DropdownMenuItem onClick={() => handleGenericAction('View Profile', user.fullName)}>
+                          <DropdownMenuItem onClick={() => handleGenericAction('View Profile (Not Implemented)', user.fullName)}>
                             <Eye className="mr-2 h-4 w-4" /> View Profile
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleGenericAction('Edit User (Role)', user.fullName)}>
+                          <DropdownMenuItem onClick={() => handleGenericAction('Edit User (Role - Not Implemented)', user.fullName)}>
                             <Edit className="mr-2 h-4 w-4" /> Edit User (Role)
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {user.status === "Active" ? (
-                            <DropdownMenuItem className="text-orange-600 focus:text-orange-700 focus:bg-orange-500/10" onClick={() => handleUpdateUserStatus(user.id, true)}>
-                                <UserCog className="mr-2 h-4 w-4" /> Suspend User
+                            <DropdownMenuItem className="text-orange-600 focus:text-orange-700 focus:bg-orange-500/10" onClick={() => handleUpdateUserStatus(user.id, user.isActive)}>
+                              <UserCog className="mr-2 h-4 w-4" /> Suspend User
                             </DropdownMenuItem>
                           ) : (
-                             <DropdownMenuItem className="text-green-600 focus:text-green-700 focus:bg-green-500/10" onClick={() => handleUpdateUserStatus(user.id, false)}>
-                                <UserCheck className="mr-2 h-4 w-4" /> Unsuspend User
+                            <DropdownMenuItem className="text-green-600 focus:text-green-700 focus:bg-green-500/10" onClick={() => handleUpdateUserStatus(user.id, user.isActive)}>
+                              <UserCheck className="mr-2 h-4 w-4" /> Unsuspend User
                             </DropdownMenuItem>
                           )}
-                          {/* Prevent deleting admins as a safeguard, can be adjusted */}
-                          {user.role !== "Admin" && (
-                              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleGenericAction('Delete User', user.fullName)}>
+                          {user.role !== "admin" && ( // Prevent admin from deleting other admins through this simple UI
+                            <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleDeleteUser(user.id)}>
                               <Trash2 className="mr-2 h-4 w-4" /> Delete User
-                              </DropdownMenuItem>
+                            </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -281,7 +369,7 @@ export default function UserManagementPage() {
           )}
           {!isLoading && !error && filteredUsers.length > 0 && (
             <p className="text-xs text-muted-foreground mt-4 font-body text-center">
-                Displaying {filteredUsers.length} user(s). Pagination would be needed for larger datasets.
+              Displaying {filteredUsers.length} user(s). Ensure your Cloud Function URL is correctly configured.
             </p>
           )}
         </CardContent>
