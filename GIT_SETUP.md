@@ -93,6 +93,21 @@ Now, send your local commits to the remote repository on GitHub.
     *   Replace `main` with `master` if your branch is named `master`.
     *   The `-u` flag (short for `--set-upstream`) links your local branch with the remote branch. After this initial push with `-u`, you can simply use `git push` for subsequent pushes from this branch.
 
-3.  You may be prompted for your GitHub username and password (or a Personal Access Token if you have Two-Factor Authentication enabled).
+3.  **Authentication:**
+    *   When you push for the first time (or if your credentials aren't cached), Git will likely prompt you for your GitHub username and password.
+    *   **IMPORTANT (Using HTTPS URLs):** Instead of your regular GitHub password, you should use a **Personal Access Token (PAT)**.
+        *   **Create a PAT on GitHub:**
+            1.  Go to GitHub -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic).
+            2.  Click "Generate new token" (select "Generate new token (classic)").
+            3.  Give it a Note (e.g., "My App Git Push").
+            4.  Set an Expiration.
+            5.  **Select the `repo` scope.** This is crucial for pushing code.
+            6.  Click "Generate token".
+            7.  **Copy the token immediately.** You won't see it again.
+        *   **When Git prompts for password:** Enter your GitHub username, and for the password, paste the PAT you just copied.
+    *   **SSH URLs:** If you're using an SSH remote URL (e.g., `git@github.com:USER/REPO.git`), ensure your SSH keys are set up correctly with GitHub.
+    *   **IDE/Environment Specifics (e.g., Firebase Studio, VS Code):** Your development environment might have its own GitHub integration or credential manager. If you encounter errors like `ECONNREFUSED` related to a Git socket, you might need to:
+        *   Ensure you're logged into GitHub via the IDE's settings or Source Control panel.
+        *   Check the IDE's documentation for specific Git authentication instructions.
 
 Once these steps are complete, refresh your repository page on GitHub. You should see your project files there. You can then proceed with your Firebase App Hosting setup, connecting it to this GitHub repository.
