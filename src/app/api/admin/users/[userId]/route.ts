@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import type { RouteHandlerContext } from 'next';
 import type { UserRecord } from 'firebase-admin/auth';
 import { adminAuth } from '@/lib/firebaseAdmin';
 
@@ -34,7 +33,7 @@ function mapUserRecordToApiUser(user: UserRecord): ApiUser {
 
 export async function PATCH(
   request: NextRequest,
-  context: RouteHandlerContext<{ userId: string }>
+  context: { params: { userId: string } }
 ) {
   const { userId } = context.params;
 
