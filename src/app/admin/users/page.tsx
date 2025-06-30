@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase"; // Import Firebase auth for getting ID token
 
 // Placeholder for your Cloud Function base URL
-const CLOUD_FUNCTION_BASE_URL = "YOUR_CLOUD_FUNCTION_BASE_URL_HERE"; // e.g., https://us-central1-your-project-id.cloudfunctions.net/api
+const CLOUD_FUNCTION_BASE_URL = "YOUR_CLOUD_FUNCTION_BASE_URL_HERE"; // e.g., https://us-central1-your-project-id.cloudfunctions.net
 
 // Matches the structure from your Firestore 'users' collection
 interface BackendUser {
@@ -68,7 +68,7 @@ export default function UserManagementPage() {
         throw new Error("Cloud Function URL is not configured. Please update it in src/app/admin/users/page.tsx");
       }
 
-      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users`, {
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/api/users`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -130,7 +130,7 @@ export default function UserManagementPage() {
         throw new Error("Cloud Function URL is not configured.");
       }
 
-      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users/${userId}`, {
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/api/users/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -143,18 +143,6 @@ export default function UserManagementPage() {
         const errorData = await response.json();
         throw new Error(errorData.error || `Failed to update user: ${response.statusText}`);
       }
-
-      // const updatedBackendUser: BackendUser = await response.json(); // Backend PUT might not return user
-      // For now, optimistic update is enough. Or re-fetch the specific user or all users.
-      // To be safe, re-fetch all users to ensure UI consistency with backend state.
-      // await fetchUsers(); 
-      // OR update specific user based on response if backend returns it:
-      // setUsers(prevUsers => prevUsers.map(u => u.id === userId ? {
-      //   ...u,
-      //   status: updatedBackendUser.isActive ? 'Active' : 'Suspended',
-      //   isActive: updatedBackendUser.isActive,
-      // } : u));
-
 
       toast({
         title: "User Status Updated",
@@ -185,7 +173,7 @@ export default function UserManagementPage() {
       if (CLOUD_FUNCTION_BASE_URL === "YOUR_CLOUD_FUNCTION_BASE_URL_HERE") {
         throw new Error("Cloud Function URL is not configured.");
       }
-      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users/${userId}`, {
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/api/users/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

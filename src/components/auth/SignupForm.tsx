@@ -24,7 +24,7 @@ import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, updateProfile, AuthError, type User } from "firebase/auth";
 
 // Placeholder for your Cloud Function base URL
-const CLOUD_FUNCTION_BASE_URL = "YOUR_CLOUD_FUNCTION_BASE_URL_HERE"; // e.g., https://us-central1-your-project-id.cloudfunctions.net/api
+const CLOUD_FUNCTION_BASE_URL = "YOUR_CLOUD_FUNCTION_BASE_URL_HERE"; // e.g., https://us-central1-your-project-id.cloudfunctions.net
 
 
 const formSchema = z.object({
@@ -73,7 +73,7 @@ export function SignupForm() {
       const lastName = nameParts.slice(1).join(' ') || " ";
 
 
-      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/users`, {
+      const response = await fetch(`${CLOUD_FUNCTION_BASE_URL}/api/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
