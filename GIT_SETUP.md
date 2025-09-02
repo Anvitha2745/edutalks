@@ -45,7 +45,15 @@ git commit -m "Initial commit of Edutalks project"
 ### Step 5: Link Your Firebase Studio Project to GitHub
 1.  On the new GitHub repository page, copy the **HTTPS URL**. It will look like this:
     `https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git`
-2.  Back in the Firebase Studio terminal, link your local project to the GitHub repository by running:
+2.  Back in the Firebase Studio terminal, link your local project to the GitHub repository.
+
+    First, ensure there isn't an old link. Run:
+    ```bash
+    git remote remove origin
+    ```
+    (It's okay if this command shows an error saying "No such remote").
+
+    Now, add the correct link:
     ```bash
     git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
     ```
@@ -65,22 +73,40 @@ GitHub requires a Personal Access Token instead of your regular password for com
 6.  Click **"Generate token"**.
 7.  **Copy the token immediately.** You will not see it again. Treat it like a password.
 
-### Step 7: Push Your Code to GitHub
-Now, push your committed files from Firebase Studio to GitHub.
+### Step 7: Push Your Code to GitHub (The Upload Step)
+Now, push your committed files from Firebase Studio to GitHub. **This is the step that actually uploads your code.**
 ```bash
 git push -u origin main
 ```
 *   **Git will prompt for your username and password.**
-    *   **Username:** Enter your GitHub username (e.g., `saitharung96`).
-    *   **Password:** **Paste your Personal Access Token (PAT)** that you just copied.
+    *   **Username:** Enter your GitHub username (e.g., `tharun-a11y`).
+    *   **Password:** **Paste your Personal Access Token (PAT)** that you just copied. Do NOT use your regular GitHub password.
 
-If successful, your code is now safely stored on GitHub!
+If successful, you will see output like this:
+```
+Enumerating objects: ..., done.
+Counting objects: 100% (...), done.
+...
+To https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
+ * [new branch]      main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
+```
+**Now, refresh your GitHub repository page in your browser. Your files should be visible.**
+
+### Troubleshooting
+*   **Error: `repository not found` or `Authentication failed`**:
+    *   This almost always means your **Personal Access Token (PAT)** is wrong, has expired, or doesn't have the correct `repo` scope.
+    *   Go back to GitHub and generate a new PAT, making sure to copy it correctly and check the `repo` scope.
+*   **Error: `src refspec main does not match any`**:
+    *   This means your main branch might be named `master`. Try running `git push -u origin master` instead.
+*   **Error: `remote origin already exists`**:
+    *   Run `git remote remove origin` and then re-run the `git remote add origin ...` command from Step 5.
 
 ---
 
 ## Part B: Download (Clone) Your Code from GitHub to Your Local Computer
 
-This part is done on your personal computer (laptop or desktop).
+This part is done on your personal computer (laptop or desktop) **after you can see your files on GitHub.com**.
 
 ### Step 1: Install Git on Your Local Computer
 If you don't already have Git installed, download it from [git-scm.com](https://git-scm.com/).
