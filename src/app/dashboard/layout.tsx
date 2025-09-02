@@ -49,7 +49,7 @@ export default function DashboardLayout({
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
-        <SidebarHeader className="p-4">
+        <SidebarHeader className="p-4 flex items-center justify-center group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2">
           <Logo />
         </SidebarHeader>
         <SidebarContent>
@@ -72,18 +72,18 @@ export default function DashboardLayout({
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <Separator className="my-2" />
-        <SidebarFooter className="p-4">
-          <p className="text-xs text-muted-foreground font-body">&copy; {new Date().getFullYear()} Edutalks</p>
+        <SidebarFooter className="p-4 group-data-[collapsible=icon]:p-2">
+           <div className="text-center text-xs text-muted-foreground font-body group-data-[collapsible=icon]:hidden">
+             <p>&copy; {new Date().getFullYear()} Edutalks</p>
+           </div>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
         <AppHeader />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-background">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-muted/30">
           {children}
         </main>
       </SidebarInset>
     </SidebarProvider>
   );
 }
-
